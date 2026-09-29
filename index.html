@@ -1,0 +1,2946 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf1ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="청소년국">
+<title>청소년국 — 재고·판매 관리</title>
+  <style>
+    :root{
+      --bg:#edf3ff; --bg2:#f8faff; --ink:#10233f; --muted:#6b7280;
+      --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.78);
+      --line:rgba(255,255,255,.76); --accent:#5f7dff; --accent2:#8b5cf6;
+      --good:#12b76a; --warn:#f79009; --bad:#f04438;
+      --shadow:0 20px 60px rgba(54,70,112,.14);
+      --panel-row:rgba(255,255,255,.55);
+      --input-bg:rgba(255,255,255,.68);
+      --table-head:rgba(248,250,255,.90);
+      --table-bg:rgba(255,255,255,.30);
+      --hover-bg:rgba(255,255,255,.54);
+      --r:24px; --safe-bottom:env(safe-area-inset-bottom, 0px);
+    }
+    html[data-theme="dark"]{
+      --bg:#0b1020; --bg2:#151b2d; --ink:#eef3ff; --muted:#9aa8bf;
+      --glass:rgba(20,27,45,.62); --glass-strong:rgba(28,36,58,.80);
+      --line:rgba(255,255,255,.10);
+      --accent:#7691ff; --accent2:#a780ff;
+      --good:#32d583; --warn:#fdb022; --bad:#f97066;
+      --shadow:0 22px 70px rgba(0,0,0,.34);
+      --panel-row:rgba(255,255,255,.055);
+      --input-bg:rgba(255,255,255,.07);
+      --table-head:rgba(23,31,50,.92);
+      --table-bg:rgba(255,255,255,.025);
+      --hover-bg:rgba(255,255,255,.06);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard","Noto Sans KR","Segoe UI",sans-serif;color:var(--ink);background:
+      radial-gradient(circle at 10% 10%,rgba(111,154,255,.20),transparent 30%),
+      radial-gradient(circle at 92% 8%,rgba(191,142,255,.16),transparent 28%),
+      radial-gradient(circle at 80% 90%,rgba(85,220,193,.11),transparent 28%),
+      linear-gradient(140deg,var(--bg),var(--bg2));
+      overflow:hidden;
+      transition:background .35s ease,color .25s ease;
+    }
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .glass{background:var(--glass);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(26px) saturate(155%);-webkit-backdrop-filter:blur(26px) saturate(155%)}
+    .app{height:100vh;display:grid;grid-template-columns:270px 1fr;gap:16px;padding:16px}
+    .sidebar{border-radius:30px;padding:18px;display:flex;flex-direction:column;min-height:0}
+    .brand{display:flex;align-items:center;gap:12px;padding:5px 5px 16px}
+    .logo{width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,#5f7dff,#9a65ff);box-shadow:inset 0 1px 1px rgba(255,255,255,.92),0 10px 24px rgba(89,116,255,.28);position:relative}
+    .logo:after{content:"";position:absolute;inset:10px;border:3px solid rgba(255,255,255,.93);border-radius:50%}
+    .brand h1{font-size:18px;margin:0;letter-spacing:-.5px}.brand small{color:var(--muted);font-size:12px}
+    .nav{display:flex;flex-direction:column;gap:6px;overflow:auto}
+    .nav button,.sheet-btn{border:0;background:transparent;color:#223451;border-radius:16px;padding:12px 13px;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:transform .22s cubic-bezier(.2,.8,.2,1),background .22s}
+    .nav button:hover,.sheet-btn:hover{background:rgba(255,255,255,.58);transform:translateX(2px)}
+    .nav button.active{background:rgba(255,255,255,.90);box-shadow:0 9px 25px rgba(57,75,125,.11);font-weight:750}
+    .ico{display:inline-block;width:26px}
+    .section-title{font-size:11px;text-transform:uppercase;letter-spacing:1.3px;color:#7b8798;margin:18px 8px 8px}
+    .sheet-list{display:flex;flex-direction:column;gap:4px}
+    .sheet-add{border:1px dashed rgba(83,104,166,.28)!important;margin-top:7px}
+    .side-footer{margin-top:auto;padding-top:12px}
+    .main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:14px}
+    .topbar{height:72px;border-radius:24px;display:flex;align-items:center;gap:10px;padding:11px 13px;flex:0 0 auto}
+    .search{flex:1;display:flex;align-items:center;gap:9px;background:var(--input-bg);border:1px solid rgba(255,255,255,.84);border-radius:16px;padding:11px 13px}
+    .search input{width:100%;border:0;outline:0;background:transparent;color:var(--ink)}
+    .btn{border:1px solid rgba(255,255,255,.86);background:var(--input-bg);border-radius:15px;padding:10px 13px;color:#253754;box-shadow:0 5px 18px rgba(41,53,91,.07);transition:.2s cubic-bezier(.2,.8,.2,1)}
+    .btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.93)}
+    .btn.primary{border:0;color:white;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .btn.danger{color:#b42318;background:rgba(255,255,255,.7)}
+    .content{overflow:auto;min-height:0;padding:1px 2px 24px;scroll-behavior:smooth}
+    .page{display:none;animation:pageIn .3s cubic-bezier(.2,.8,.2,1)}
+    .page.active{display:block}
+    @keyframes pageIn{from{opacity:0;transform:translateY(9px) scale(.995)}to{opacity:1;transform:none}}
+    .headline{display:flex;justify-content:space-between;gap:14px;align-items:end;margin:7px 2px 15px}
+    .headline h2{font-size:29px;letter-spacing:-1.1px;margin:0}.headline p{margin:6px 0 0;color:var(--muted)}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+    .card{border-radius:22px;padding:18px;min-height:118px;position:relative;overflow:hidden}
+    .card:before{content:"";position:absolute;width:125px;height:125px;border-radius:50%;right:-35px;top:-45px;background:rgba(255,255,255,.35)}
+    .kpi-label{font-size:13px;color:var(--muted)}.kpi{font-size:28px;font-weight:800;letter-spacing:-1px;margin-top:9px}.sub{font-size:12px;color:var(--muted);margin-top:5px}
+    .panel{border-radius:24px;padding:16px;margin-bottom:14px}
+    .panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+    .panel h3{margin:0;font-size:17px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .input,.select{border:1px solid rgba(255,255,255,.86);background:var(--input-bg);border-radius:13px;padding:10px 11px;outline:0;color:var(--ink)}
+    .table-wrap{overflow:auto;border-radius:18px;border:1px solid rgba(255,255,255,.72)}
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px;background:var(--table-bg)}
+    th,td{padding:11px 12px;border-bottom:1px solid rgba(117,137,181,.12);font-size:13px;white-space:nowrap;text-align:left}
+    th{position:sticky;top:0;z-index:2;background:var(--table-head);backdrop-filter:blur(16px);color:#52617a;font-weight:750}
+    tr:last-child td{border-bottom:0}tbody tr{transition:background .16s}tbody tr:hover{background:var(--hover-bg)}
+    .money{text-align:right}.badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:750;background:rgba(91,124,255,.10);color:#4965d7}
+    .badge.good{background:rgba(18,183,106,.12);color:#087a48}.badge.warn{background:rgba(247,144,9,.13);color:#9a5900}.badge.bad{background:rgba(240,68,56,.11);color:#b42318}
+    .row-actions{display:flex;gap:6px}.iconbtn{border:0;background:var(--input-bg);border-radius:10px;padding:7px 9px}
+    .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+    .empty{text-align:center;padding:34px;color:var(--muted)}
+    .small{font-size:12px;color:var(--muted)}
+    .customer-card{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;border-radius:16px;background:var(--panel-row);margin-bottom:8px}
+    .hr{height:1px;background:rgba(106,127,170,.14);margin:13px 0}
+    .category-manager-group{margin-bottom:14px}
+    .category-manager-group:last-child{margin-bottom:0}
+    .category-major-title{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin:2px 2px 8px;padding:6px 3px;font-weight:800;font-size:14px
+    }
+    .category-item{
+      display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+      padding:12px 13px;margin-bottom:8px;border-radius:16px;
+      background:var(--panel-row);border:1px solid var(--line)
+    }
+    .category-path{font-weight:750;word-break:break-word}
+    .category-path .sep{color:var(--muted);font-weight:500;padding:0 5px}
+    .category-meta{margin-top:5px;font-size:12px;color:var(--muted)}
+    .category-actions{display:flex;gap:6px;align-items:center}
+    .category-actions .btn{padding:8px 10px;font-size:12px}
+    .category-entry-row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:8px;align-items:center}
+    .category-entry-row input,.category-entry-row select{width:100%;min-width:0}
+    .category-reuse-select{font-size:12px}
+    .category-empty{
+      text-align:center;padding:38px 18px;border-radius:18px;
+      border:1px dashed rgba(116,135,177,.24);color:var(--muted)
+    }
+    .tree{display:flex;flex-direction:column;gap:8px}
+    .tree details{background:var(--panel-row);border:1px solid rgba(255,255,255,.75);border-radius:16px;padding:10px 12px}
+    .tree summary{cursor:pointer;font-weight:750}.mid{margin:8px 0 0 14px;color:#4b5870}.leaf{margin:4px 0 0 28px;color:#6a7689}
+    .sheet-chip{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;background:rgba(91,124,255,.1);font-size:11px;margin:3px}
+    .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(30,42,68,.18);backdrop-filter:blur(12px);z-index:70}
+    .modal-backdrop.show{display:flex;animation:pageIn .2s ease}
+    .modal{width:min(860px,96vw);max-height:90vh;overflow:auto;border-radius:28px;padding:20px;background:rgba(248,251,255,.78);border:1px solid rgba(255,255,255,.92);box-shadow:0 30px 90px rgba(37,50,90,.22);backdrop-filter:blur(32px) saturate(160%)}
+    .modal h3{margin:0 0 16px;font-size:22px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.full{grid-column:1/-1}
+    label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#667085;font-weight:750}
+    label input,label select,label textarea{border:1px solid rgba(113,133,178,.18);background:var(--input-bg);border-radius:13px;padding:11px;outline:0;color:#18243a}
+    textarea{min-height:82px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+    .toast{position:fixed;right:22px;bottom:22px;z-index:100;padding:12px 16px;border-radius:15px;background:rgba(24,35,57,.9);color:#fff;box-shadow:0 12px 38px rgba(0,0,0,.2);transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}
+    .mobile-nav{display:none}
+    .mobile-title{display:none}
+    .mobile-card-list{display:none}
+
+    .dashboard-category-panel{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));align-items:end;gap:12px}
+    .dashboard-major-label{min-width:0}
+    .dashboard-major-help{grid-column:1/-1;padding-bottom:0}
+    .dashboard-choice-empty{
+      padding:34px 18px;text-align:center;border-radius:24px;
+      border:1px solid var(--line);color:var(--muted)
+    }
+    .dashboard-choice-empty b{display:block;color:var(--ink);font-size:16px;margin:6px 0}
+    .dashboard-choice-icon{
+      width:42px;height:42px;border-radius:15px;margin:0 auto 7px;
+      display:grid;place-items:center;background:var(--panel-row);
+      color:var(--accent);font-size:22px;font-weight:800
+    }
+    .compact-btn{padding:7px 10px;font-size:11px}
+    .mobile-menu-backdrop{display:none}
+    .cloud-badge{
+      border:1px solid var(--line);background:var(--panel-row);color:var(--ink);
+      border-radius:999px;padding:8px 11px;display:inline-flex;align-items:center;gap:7px;
+      font-size:12px;font-weight:800;white-space:nowrap
+    }
+    .cloud-dot{width:8px;height:8px;border-radius:50%;background:#98a2b3;box-shadow:0 0 0 3px rgba(152,162,179,.12)}
+    .cloud-badge.online .cloud-dot{background:var(--good);box-shadow:0 0 0 3px rgba(18,183,106,.13)}
+    .cloud-badge.syncing .cloud-dot{background:var(--warn);animation:pulse 1s infinite}
+    .cloud-badge.error .cloud-dot{background:var(--bad)}
+    @keyframes pulse{50%{opacity:.35}}
+    .cloud-status-box{
+      padding:13px;border-radius:16px;background:var(--panel-row);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px
+    }
+    .cloud-status-left{display:flex;align-items:center;gap:9px}
+    .cloud-profile-row{
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+      padding:12px 13px;border-radius:16px;background:var(--panel-row);border:1px solid var(--line);margin-top:10px
+    }
+    .cloud-auth-backdrop{
+      position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;
+      padding:20px;background:rgba(13,20,35,.36);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+    }
+    .cloud-auth-backdrop.show{display:flex}
+    body.auth-locked .app,
+    body.auth-locked .mobile-nav{
+      visibility:hidden;
+      pointer-events:none;
+      user-select:none;
+    }
+    body.auth-locked{
+      overflow:hidden;
+    }
+    body.auth-locked #cloudAuthModal{
+      display:flex;
+    }
+    body.auth-locked #cloudAuthCloseBtn{
+      display:none !important;
+      pointer-events:none !important;
+    }
+    .cloud-auth-card{
+      width:min(520px,96vw);max-height:92vh;overflow:auto;border-radius:30px;padding:22px
+    }
+    .cloud-auth-card h2{margin:0 0 6px;font-size:25px;letter-spacing:-.8px}
+    .cloud-auth-card .auth-form{display:grid;gap:10px;margin-top:16px}
+    .auth-divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;margin:15px 0}
+    .auth-divider:before,.auth-divider:after{content:"";height:1px;background:var(--line);flex:1}
+    .auth-link-btn{
+      border:0;background:transparent;color:var(--accent);padding:4px 2px;
+      text-align:center;font-size:12px;font-weight:800;box-shadow:none
+    }
+    .auth-link-btn:hover{text-decoration:underline}
+
+    .remember-id-row{
+      display:flex!important;
+      flex-direction:row!important;
+      align-items:center!important;
+      justify-content:flex-start!important;
+      gap:9px!important;
+      width:100%!important;
+      padding:3px 2px!important;
+      margin:1px 0 3px!important;
+      color:var(--ink)!important;
+      font-size:13px!important;
+      font-weight:750!important;
+      cursor:pointer!important;
+    }
+    .remember-id-row input[type="checkbox"]{
+      appearance:auto!important;
+      -webkit-appearance:checkbox!important;
+      display:inline-block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      position:static!important;
+      width:18px!important;
+      height:18px!important;
+      min-width:18px!important;
+      min-height:18px!important;
+      margin:0!important;
+      padding:0!important;
+      border:1px solid var(--line)!important;
+      background:#fff!important;
+      box-shadow:none!important;
+      cursor:pointer!important;
+      accent-color:var(--accent)!important;
+    }
+    html[data-theme="dark"] .remember-id-row input[type="checkbox"]{
+      background:#fff!important;
+    }
+
+    .password-reset-request{
+      margin-top:12px;padding:13px;border-radius:17px;
+      background:var(--panel-row);border:1px solid var(--line)
+    }
+    .central-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+    .central-stat{padding:15px;border-radius:18px;background:var(--panel-row);border:1px solid var(--line)}
+    .central-stat .value{font-size:20px;font-weight:850;margin-top:5px}
+    .member-row{
+      display:grid;grid-template-columns:minmax(150px,1.2fr) .8fr .7fr auto;gap:8px;align-items:center;
+      padding:11px;border-bottom:1px solid rgba(117,137,181,.12)
+    }
+    .member-row:last-child{border-bottom:0}
+    .audit-row{
+      display:grid;grid-template-columns:150px 130px 130px minmax(220px,1fr);gap:9px;
+      padding:11px;border-bottom:1px solid rgba(117,137,181,.12);align-items:start;font-size:12px
+    }
+    .audit-row:last-child{border-bottom:0}
+    .sync-warning{
+      padding:11px 12px;border-radius:14px;background:rgba(247,144,9,.10);
+      color:var(--ink);border:1px solid rgba(247,144,9,.18);font-size:12px;line-height:1.5
+    }
+    .pending-badge{background:rgba(247,144,9,.12);color:#b26500}
+    html[data-theme="dark"] .pending-badge{color:#ffd28a}
+    .dashboard-filters{
+      display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:10px
+    }
+    .dashboard-filters label{min-width:0}
+    .dashboard-filters select,.dashboard-filters input{
+      width:100%;border:1px solid rgba(113,133,178,.18);
+      background:var(--input-bg);border-radius:13px;padding:11px;outline:0;color:var(--ink)
+    }
+
+    .calendar-toolbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px
+    }
+    .calendar-title-group{display:flex;align-items:center;gap:10px}
+    .calendar-title-group h3{margin:0;min-width:135px;text-align:center;font-size:20px}
+    .calendar-arrow{font-size:24px;line-height:1;padding:8px 13px}
+    .calendar-scroll{overflow:auto;border-radius:18px}
+    .calendar-weekdays,.calendar-grid{
+      display:grid;grid-template-columns:repeat(7,minmax(112px,1fr));min-width:784px
+    }
+    .calendar-weekdays{
+      background:var(--table-head);border:1px solid var(--line);border-bottom:0;
+      border-radius:16px 16px 0 0;overflow:hidden
+    }
+    .calendar-weekdays div{
+      text-align:center;padding:10px 5px;font-size:12px;font-weight:800;color:var(--muted)
+    }
+    .calendar-weekdays .sun{color:#d92d20}
+    .calendar-weekdays .sat{color:#3e5bd8}
+    .calendar-grid{
+      border-left:1px solid var(--line);border-top:1px solid var(--line)
+    }
+    .calendar-day{
+      min-height:132px;padding:9px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+      background:var(--table-bg);color:var(--ink);text-align:left;position:relative;
+      transition:transform .16s ease,background .16s ease,box-shadow .16s ease
+    }
+    .calendar-day:hover{background:var(--hover-bg);z-index:2}
+    .calendar-day.empty-day{background:rgba(127,143,176,.025);cursor:default}
+    .calendar-day.has-sales{
+      background:linear-gradient(145deg,rgba(95,125,255,.13),var(--table-bg));
+      cursor:pointer
+    }
+    .calendar-day.has-sales:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(68,87,144,.12)}
+    .calendar-day.selected{
+      box-shadow:inset 0 0 0 2px var(--accent);z-index:3
+    }
+    .calendar-day.today .calendar-date-number{
+      background:var(--accent);color:#fff;border-radius:999px;min-width:27px;height:27px;
+      display:inline-grid;place-items:center;padding:0 7px
+    }
+    .calendar-date-row{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:7px}
+    .calendar-date-number{font-weight:800;font-size:13px}
+    .calendar-sale-badge{
+      display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;
+      background:var(--accent);color:#fff;font-size:10px;font-weight:800
+    }
+    .calendar-sales-dot{
+      width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.18)
+    }
+    .calendar-total{font-size:12px;font-weight:800;margin-bottom:6px;color:var(--ink)}
+    .calendar-product{
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted);
+      padding:3px 6px;border-radius:7px;background:var(--panel-row);margin-top:4px
+    }
+    .calendar-more{font-size:10px;color:var(--accent);font-weight:800;margin-top:5px}
+    .calendar-day-detail{
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+      padding:12px 13px;border-radius:16px;background:var(--panel-row);
+      border:1px solid var(--line);margin-bottom:8px;cursor:pointer
+    }
+    .calendar-day-detail:hover{background:var(--hover-bg)}
+    .calendar-detail-right{text-align:right}
+    .calendar-day-summary-cards{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px
+    }
+    .calendar-mini-stat{
+      padding:11px;border-radius:14px;background:var(--panel-row);border:1px solid var(--line)
+    }
+    .calendar-mini-stat b{display:block;font-size:17px;margin-top:4px}
+    .settings-open{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+    .appearance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .appearance-option{
+      border:1px solid var(--line);background:var(--panel-row);color:var(--ink);
+      border-radius:22px;padding:12px;text-align:left;
+      transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s,border-color .22s,background .22s;
+      box-shadow:0 8px 24px rgba(48,61,101,.05)
+    }
+    .appearance-option:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(48,61,101,.10)}
+    .appearance-option.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(95,125,255,.20),0 16px 34px rgba(48,61,101,.11)}
+    .appearance-preview{
+      height:150px;border-radius:17px;padding:10px;display:grid;
+      grid-template-columns:28% 1fr;gap:8px;overflow:hidden;margin-bottom:12px;
+      border:1px solid rgba(127,143,176,.16)
+    }
+    .light-preview{background:linear-gradient(140deg,#edf3ff,#ffffff)}
+    .dark-preview{background:linear-gradient(140deg,#090e1b,#1a2239)}
+    .preview-sidebar{border-radius:11px;background:rgba(115,137,205,.18)}
+    .dark-preview .preview-sidebar{background:rgba(255,255,255,.08)}
+    .preview-content{display:flex;flex-direction:column;gap:7px}
+    .preview-content div{height:30%;border-radius:10px;background:rgba(255,255,255,.76);box-shadow:0 5px 14px rgba(64,80,130,.08)}
+    .dark-preview .preview-content div{background:rgba(255,255,255,.09);box-shadow:none}
+    .appearance-copy{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+    .appearance-icon{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:var(--input-bg);font-size:18px}
+    .theme-check{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:white;opacity:0;transform:scale(.7);transition:.2s}
+    .appearance-option.selected .theme-check{opacity:1;transform:scale(1)}
+    .theme-toggle{min-width:44px;font-size:16px;padding:10px 12px}
+    html[data-theme="dark"] .nav button,
+    html[data-theme="dark"] .sheet-btn,
+    html[data-theme="dark"] .btn,
+    html[data-theme="dark"] .input,
+    html[data-theme="dark"] .select,
+    html[data-theme="dark"] label input,
+    html[data-theme="dark"] label select,
+    html[data-theme="dark"] label textarea{color:var(--ink)}
+    html[data-theme="dark"] .nav button.active{background:rgba(255,255,255,.10)}
+    html[data-theme="dark"] .nav button:hover,
+    html[data-theme="dark"] .sheet-btn:hover{background:rgba(255,255,255,.06)}
+    html[data-theme="dark"] .btn:hover{background:rgba(255,255,255,.12)}
+    html[data-theme="dark"] .search input{color:var(--ink)}
+    html[data-theme="dark"] .search input::placeholder,
+    html[data-theme="dark"] input::placeholder,
+    html[data-theme="dark"] textarea::placeholder{color:#8390a6}
+    html[data-theme="dark"] .modal{
+      background:rgba(17,24,40,.86);
+      border-color:rgba(255,255,255,.10);
+      box-shadow:0 32px 100px rgba(0,0,0,.45);
+    }
+    html[data-theme="dark"] .modal-actions{
+      background:linear-gradient(transparent,rgba(17,24,40,.96) 38%);
+    }
+    html[data-theme="dark"] .mobile-nav{
+      background:rgba(17,24,40,.82);
+      border-color:rgba(255,255,255,.10);
+    }
+    html[data-theme="dark"] .mobile-nav button.active{background:rgba(255,255,255,.10);color:#aebcff}
+    html[data-theme="dark"] .mobile-menu-sheet{background:rgba(19,24,37,.95)}
+    html[data-theme="dark"] .mobile-menu-grid button,
+    html[data-theme="dark"] .mobile-sheet-btn{background:rgba(255,255,255,.06)}
+    html[data-theme="dark"] body{color:var(--ink)}
+    html[data-theme="dark"] .glass{background:var(--glass);border-color:var(--line)}
+    html[data-theme="dark"] th{background:var(--table-head);color:#b7c3d9}
+    html[data-theme="dark"] table{background:var(--table-bg)}
+    html[data-theme="dark"] tbody tr:hover{background:var(--hover-bg)}
+    html[data-theme="dark"] .customer-card,
+    html[data-theme="dark"] .m-card,
+    html[data-theme="dark"] .tree details{background:var(--panel-row)}
+    html[data-theme="dark"] .card:before{background:rgba(255,255,255,.05)}
+    html[data-theme="dark"] .appearance-option{color:var(--ink)}
+    .m-card{padding:14px;border-radius:18px;background:var(--hover-bg);border:1px solid rgba(255,255,255,.75);margin-bottom:9px}
+    .m-row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .m-meta{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
+    .sheet-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .sheet-home-card{border:1px solid var(--line);background:var(--panel-row);border-radius:20px;padding:17px;text-align:left;color:var(--ink);transition:.2s}
+    .sheet-home-card:hover{transform:translateY(-2px);background:var(--hover-bg);box-shadow:0 14px 34px rgba(48,61,101,.10)}
+    .sheet-home-card b{display:block;font-size:16px;margin-bottom:6px}
+    .sheet-home-add{border-style:dashed;display:grid;place-items:center;min-height:104px;font-weight:800;color:var(--accent)}
+    .active-sheet-badge{display:none;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel-row);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+    .active-sheet-badge.show{display:inline-flex}
+    .sheet-btn.active-sheet{background:rgba(95,125,255,.13);box-shadow:inset 0 0 0 1px rgba(95,125,255,.22);font-weight:850}
+    .sheet-scope-hidden{display:none!important}
+    @media(max-width:1150px){
+      .cards{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.app{grid-template-columns:225px 1fr}
+    }
+    @media(max-width:760px){
+      html,body{overflow:hidden}
+      .app{display:block;height:100dvh;padding:0}
+      .sidebar{display:none}
+      .main{height:100dvh;display:flex;gap:0}
+      .topbar{height:auto;border-radius:0 0 22px 22px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;border-top:0;flex-wrap:wrap;z-index:15}
+      .mobile-title{display:block;width:100%;font-size:18px;font-weight:800;letter-spacing:-.5px;padding:0 1px 5px}
+      .search{flex-basis:100%;order:2}
+      .topbar>.btn{display:none}
+      .mobile-title{width:auto;flex:1}
+      .appearance-grid{grid-template-columns:1fr}
+      .appearance-preview{height:120px}
+      .cloud-badge{padding:8px 9px}
+      .cloud-badge .cloud-label{display:none}
+      .central-stats{grid-template-columns:1fr 1fr}
+      .member-row{grid-template-columns:1fr}
+      .audit-row{grid-template-columns:1fr;gap:3px}
+      .cloud-auth-backdrop{align-items:flex-end;padding:0}
+      .cloud-auth-card{width:100%;border-radius:28px 28px 0 0;padding:18px 16px calc(18px + var(--safe-bottom))}
+
+      .category-item{grid-template-columns:1fr}
+      .category-actions{justify-content:flex-end}
+      .category-entry-row{grid-template-columns:minmax(0,1fr) 124px;gap:6px}
+      .category-reuse-select{font-size:11px;padding-left:7px;padding-right:7px}
+      .category-layout{display:block}
+      .dashboard-filters{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+        gap:8px;
+        width:100%;
+      }
+      .dashboard-filters label{
+        min-width:0;
+        width:100%;
+      }
+      .dashboard-filters input[type="date"]{
+        display:block;
+        width:100%;
+        max-width:100%;
+        min-width:0;
+        box-sizing:border-box;
+        padding:9px 7px;
+        font-size:13px;
+        line-height:1.2;
+        overflow:hidden;
+      }
+      .dashboard-filter-panel .panel-head{flex-direction:row;align-items:center}
+
+      #dashboard .headline{margin-bottom:8px}
+      #dashboard .headline h2{font-size:22px}
+      .dashboard-category-panel{
+        display:block;padding:10px 11px;border-radius:17px;margin-bottom:8px
+      }
+      .dashboard-category-panel .dashboard-major-label + .dashboard-major-label{margin-top:6px}
+      .dashboard-major-label{
+        display:grid;grid-template-columns:52px minmax(0,1fr);
+        align-items:center;gap:7px;min-width:0;font-size:11px
+      }
+      .dashboard-major-label .select{
+        width:100%;height:36px;padding:6px 31px 6px 9px;font-size:13px
+      }
+      .dashboard-major-help{display:none}
+      .dashboard-choice-empty{
+        padding:22px 12px;border-radius:18px;margin-top:0
+      }
+      .dashboard-choice-empty .small{font-size:11px}
+      .dashboard-choice-icon{width:36px;height:36px;border-radius:13px;font-size:18px}
+      .dashboard-filter-panel{
+        padding:9px 10px;border-radius:17px;margin-bottom:8px
+      }
+      .dashboard-filter-panel .panel-head{
+        flex-direction:row;align-items:center;margin-bottom:6px;gap:6px
+      }
+      .dashboard-filter-panel .panel-head h3{font-size:13px;margin:0}
+      #dashboardRangeLabel{font-size:10px;margin-top:1px!important}
+      .dashboard-filter-panel .compact-btn{
+        width:auto!important;padding:5px 7px;font-size:10px;white-space:nowrap
+      }
+      .dashboard-filters{
+        display:flex;flex-direction:column;gap:5px;width:100%
+      }
+      .dashboard-filters label{
+        display:grid;grid-template-columns:52px minmax(0,1fr);
+        align-items:center;gap:7px;min-width:0;width:100%;font-size:10px
+      }
+      .dashboard-filters input[type="date"]{
+        width:100%;max-width:100%;min-width:0;height:34px;
+        box-sizing:border-box;padding:4px 7px;font-size:12px;line-height:1
+      }
+      .dashboard-kpis{margin-top:8px}
+      #dashboard .cards{gap:7px}
+      #dashboard .card{padding:11px;min-height:82px;border-radius:17px}
+      #dashboard .card .kpi-label{font-size:10px}
+      #dashboard .card .kpi{font-size:20px;margin-top:3px}
+      #dashboard .card .sub{font-size:9px;margin-top:2px}
+      #dashboard .two .panel{margin-top:8px}
+      #dashboard .customer-card{padding:10px 8px}
+      #dashboard .panel-head h3{font-size:14px}
+      .calendar-weekdays,.calendar-grid{
+        grid-template-columns:repeat(7,minmax(0,1fr));
+        min-width:0
+      }
+      .calendar-day{min-height:68px;padding:5px 3px;border-radius:12px}
+      .calendar-date-number{font-size:11px}
+      .calendar-sale-badge{font-size:8px;padding:2px 3px}
+      .calendar-total,.calendar-product,.calendar-more{display:none}
+
+      .calendar-toolbar{align-items:stretch;flex-direction:column}
+      .calendar-title-group{justify-content:space-between}
+      .calendar-title-group h3{flex:1}
+      .calendar-selects{display:grid;grid-template-columns:1fr 1fr 1fr}
+      .calendar-day-summary-cards{grid-template-columns:1fr 1fr 1fr}
+      .content{padding:8px 10px calc(88px + var(--safe-bottom));overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+      .headline{margin:0 0 8px;align-items:center}.headline h2{font-size:23px}.headline p{font-size:13px}.headline>.btn{padding:9px 11px}
+      .cards{grid-template-columns:repeat(2,1fr);gap:9px}.card{padding:14px;min-height:105px;border-radius:19px}.kpi{font-size:23px}
+      .panel{border-radius:21px;padding:13px}.panel-head{align-items:flex-start;flex-direction:column}.toolbar{width:100%}.toolbar .input,.toolbar .select{flex:1;min-width:0}
+      .table-wrap{display:none}.mobile-card-list{display:block}
+      .two{display:block}
+      .form-grid{grid-template-columns:1fr}.full{grid-column:auto}
+      .modal-backdrop{align-items:flex-end;padding:0}
+      .modal{width:100%;max-height:92dvh;border-radius:28px 28px 0 0;padding:18px 16px calc(18px + var(--safe-bottom));animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
+      @keyframes sheetUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+      .modal-actions{position:sticky;bottom:0;padding-top:10px;background:linear-gradient(transparent,rgba(248,251,255,.94) 36%)}
+      .modal-actions .btn{flex:1;padding:12px}
+      .mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;z-index:60;left:10px;right:10px;bottom:calc(10px + var(--safe-bottom));border-radius:23px;padding:6px 5px;background:rgba(244,248,255,.82);border:1px solid rgba(255,255,255,.88);box-shadow:0 18px 45px rgba(44,62,112,.20);backdrop-filter:blur(24px) saturate(160%)}
+      .mobile-nav button{border:0;background:transparent;border-radius:16px;padding:7px 3px;min-width:0;color:#5f6b7d;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
+      .mobile-nav button span:first-child{font-size:18px}.mobile-nav button.active{background:rgba(255,255,255,.82);color:#3e5bd8;font-weight:800}
+      .mobile-menu-backdrop{display:none;position:fixed;z-index:90;inset:0;background:rgba(25,34,55,.30);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:flex-end}
+      .mobile-menu-backdrop.show{display:flex}
+      .mobile-menu-sheet{width:100%;max-height:86dvh;overflow:auto;border-radius:28px 28px 0 0;padding:16px 14px calc(20px + var(--safe-bottom));animation:sheetUp .25s cubic-bezier(.2,.8,.2,1)}
+      .mobile-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+      .mobile-menu-head h3{margin:2px 0 0;font-size:20px}
+      .mobile-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .mobile-menu-grid button{border:1px solid var(--line);background:var(--panel-row);color:var(--ink);border-radius:17px;padding:13px 10px;display:flex;align-items:center;gap:9px;text-align:left}
+      .mobile-menu-grid button span{font-size:19px;color:var(--accent);width:24px;text-align:center}
+      .mobile-menu-grid button b{font-size:13px}
+      .mobile-menu-section{margin-top:15px;padding-top:12px;border-top:1px solid var(--line)}
+      .mobile-menu-section-title{font-size:11px;font-weight:850;color:var(--muted);margin-bottom:8px}
+      .mobile-sheet-list{display:grid;gap:7px}
+      .mobile-sheet-btn{border:1px solid var(--line);background:var(--panel-row);color:var(--ink);border-radius:14px;padding:11px 12px;text-align:left;font-size:12px;font-weight:750}
+      .mobile-data-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+      .mobile-menu-section-row{
+        display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px
+      }
+      .mobile-menu-section-row .mobile-menu-section-title{margin-bottom:0}
+      .mobile-sheet-row{
+        display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center
+      }
+      .mobile-sheet-row .mobile-sheet-btn{width:100%}
+      .mobile-sheet-delete{
+        width:38px;height:38px;border-radius:12px;border:1px solid var(--line);
+        background:var(--panel-row);color:var(--bad);font-size:18px;font-weight:800
+      }
+
+      .toast{left:18px;right:18px;bottom:calc(92px + var(--safe-bottom));text-align:center}
+      .desktop-only{display:none!important}
+    }
+    @media(max-width:390px){
+      #dashboard .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+      #dashboard .card{padding:9px;min-height:76px}
+      #dashboard .card .kpi{font-size:18px}
+      .headline p{display:none}
+      .mobile-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .sheet-home-grid{grid-template-columns:1fr}
+      .mobile-nav.sheet-pick-mode{grid-template-columns:1fr}
+      .mobile-nav.sheet-pick-mode > button[data-page]{display:none}
+    }
+</style>
+
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="청소년국">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="청소년국">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
+
+</head>
+<body class="auth-locked">
+<!--
+[배포 설정]
+1. 이 파일의 SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY 값을 실제 값으로 교체
+2. GitHub 저장소의 index.html 로 업로드
+3. GitHub Pages 활성화
+4. Supabase Auth > URL Configuration에 GitHub Pages 주소 등록
+5. Supabase SQL Editor에는 별도로 준비한 테이블/RLS/RPC SQL을 1회 실행
+-->
+
+<!-- Standalone build: CSS/JS/UI are fully contained in this single HTML file. -->
+<div class="app">
+  <aside class="sidebar glass">
+    <div class="brand"><div class="logo"></div><div><h1>청소년국</h1><small>재고 · 판매 · 구매자 관리</small></div></div>
+    <div class="nav" id="nav">
+      <button class="active" data-page="dashboard"><span><span class="ico">◫</span>대시보드</span></button>
+      <button data-page="products"><span><span class="ico">▦</span>전체 상품</span></button>
+      <button data-page="inventory"><span><span class="ico">◎</span>재고 관리</span></button>
+      <button data-page="sales"><span><span class="ico">₩</span>판매 등록</span></button>
+      <button data-page="history"><span><span class="ico">≡</span>판매 내역</span></button>
+      <button data-page="calendarPage"><span><span class="ico">▣</span>판매 달력</span></button>
+      <button data-page="auditHistory"><span><span class="ico">✎</span>수정 이력</span></button>
+      <button data-page="customers"><span><span class="ico">♙</span>구매자 관리</span></button>
+      <button data-page="categories"><span><span class="ico">⌘</span>분류 관리</span></button>
+      <button data-page="index"><span><span class="ico">⌕</span>색인 / 검색</span></button>
+      <button data-page="settings"><span><span class="ico">⚙</span>설정</span></button>
+      <button id="centralNavBtn" data-page="centralAdmin" style="display:none"><span><span class="ico">◎</span>중앙 관리</span></button>
+    </div>
+    <div class="section-title">사용자 시트</div>
+    <div class="sheet-list" id="sheetList"></div>
+    <button class="sheet-btn sheet-add" id="addSheetBtn">＋ 새 시트 추가</button>
+    <div class="side-footer">
+      <button class="sheet-btn" id="exportBtn">⇩ 데이터 백업</button>
+      <button class="sheet-btn" id="importBtn">⇧ 데이터 불러오기</button>
+      <input id="importFile" type="file" accept=".json" hidden>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar glass">
+      <div class="mobile-title">청소년국</div>
+      <button class="active-sheet-badge" id="activeSheetBadge" type="button" title="사용자 시트 선택 화면으로 돌아가기">▤ <span id="activeSheetName"></span> · 변경</button>
+      <div class="search" id="globalSearchWrap"><span>⌕</span><input id="globalSearch" placeholder="현재 시트에서 상품 · 분류 · 구매자 · 행사 검색"></div>
+<button class="btn" id="quickSaleBtn">＋ 판매</button>
+      <button class="btn primary" id="quickProductBtn">＋ 새 상품</button>
+    </header>
+
+    <div class="content">
+      <section class="page active" id="sheetHome">
+        <div class="headline"><div><h2>사용자 시트</h2><p>사업별 시트를 선택하면 해당 시트의 데이터만 독립적으로 관리합니다.</p></div><button class="btn primary" type="button" onclick="document.getElementById('addSheetBtn').click()">＋ 새 시트</button></div>
+        <div class="panel glass">
+          <div class="panel-head"><div><h3>관리할 시트를 선택하세요</h3><div class="small" style="margin-top:5px">시트를 선택하기 전에는 대시보드·상품·재고·판매·구매자·분류·검색 화면이 열리지 않습니다.</div></div></div>
+          <div id="sheetHomeList" class="sheet-home-grid"></div>
+        </div>
+      </section>
+
+      <section class="page" id="dashboard">
+        <div class="headline dashboard-headline">
+          <div><h2>대시보드</h2><p>대분류·중분류·소분류를 선택해 판매·재고 현황을 세부적으로 확인할 수 있습니다.</p></div>
+        </div>
+
+        <div class="panel glass dashboard-category-panel">
+          <label class="dashboard-major-label">대분류
+            <select class="select" id="dashboardMajorFilter">
+              <option value="">전체</option>
+            </select>
+          </label>
+          <label class="dashboard-major-label">중분류
+            <select class="select" id="dashboardMidFilter" disabled>
+              <option value="">전체</option>
+            </select>
+          </label>
+          <label class="dashboard-major-label">소분류
+            <select class="select" id="dashboardMinorFilter" disabled>
+              <option value="">전체</option>
+            </select>
+          </label>
+          <div class="small dashboard-major-help">대분류도 기본은 ‘전체’입니다. 필요한 경우 대분류 → 중분류 → 소분류 순서로 좁혀서 확인할 수 있습니다.</div>
+        </div>
+
+        <div class="dashboard-choice-empty glass" id="dashboardChoosePrompt">
+          <div class="dashboard-choice-icon">⌘</div>
+          <b>사용자 시트를 먼저 선택해 주세요.</b>
+          <div class="small">시트를 선택하면 해당 시트 전체 현황부터 표시됩니다.</div>
+        </div>
+
+        <div id="dashboardDataWrap" style="display:none">
+          <div class="panel glass dashboard-filter-panel">
+            <div class="panel-head">
+              <div>
+                <h3>조회 기간</h3>
+                <div class="small" id="dashboardRangeLabel">기간 제한 없음</div>
+              </div>
+              <button class="btn compact-btn" id="dashboardResetBtn" type="button">기간 초기화</button>
+            </div>
+            <div class="dashboard-filters">
+              <label><span>시작일</span>
+                <input type="date" id="dashboardStart">
+              </label>
+              <label><span>종료일</span>
+                <input type="date" id="dashboardEnd">
+              </label>
+            </div>
+          </div>
+
+          <div class="cards dashboard-kpis">
+            <div class="card glass"><div class="kpi-label">기간 매출</div><div class="kpi" id="kpiRevenue">₩0</div><div class="sub">선택 분류 판매 총액</div></div>
+            <div class="card glass"><div class="kpi-label">판매 건수</div><div class="kpi" id="kpiSalesCount">0</div><div class="sub">선택 분류 거래 수</div></div>
+            <div class="card glass"><div class="kpi-label">판매 수량</div><div class="kpi" id="kpiUnits">0</div><div class="sub">선택 분류 판매 수량</div></div>
+            <div class="card glass"><div class="kpi-label">구매자 수</div><div class="kpi" id="kpiBuyers">0</div><div class="sub">선택 분류 구매자</div></div>
+          </div>
+
+          <div class="two">
+            <div class="panel glass">
+              <div class="panel-head"><h3>최근 판매</h3></div>
+              <div id="recentSales"></div>
+            </div>
+            <div class="panel glass">
+              <div class="panel-head"><h3>현재 재고 요약</h3></div>
+              <div class="customer-card"><div><b>상품 수</b><div class="small">선택 분류 품목</div></div><b id="kpiProducts">0</b></div>
+              <div class="customer-card"><div><b>재고 원가</b><div class="small">현재 재고 × 원가</div></div><b id="kpiCost">₩0</b></div>
+              <div class="customer-card"><div><b>재고 부족</b><div class="small">안전재고 이하</div></div><b id="kpiLow">0</b></div>
+              <div class="hr"></div>
+              <div id="lowStockList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="products">
+        <div class="headline"><div><h2>전체 상품</h2><p>원가, 판매가, 분류, 재고를 빠르게 관리합니다.</p></div><button class="btn primary" onclick="openProductModal()">＋ 상품</button></div>
+        <div class="panel glass">
+          <div class="panel-head"><h3>상품 목록</h3><div class="toolbar"><select class="select" id="productCatFilter"><option value="">모든 대분류</option></select><input class="input" id="productSearch" placeholder="상품 검색"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>코드</th><th>상품명</th><th>대분류</th><th>중분류</th><th>소분류</th><th class="money">원가</th><th class="money">판매가</th><th class="money">마진</th><th>재고</th><th>시트</th><th>관리</th></tr></thead><tbody id="productRows"></tbody></table></div>
+          <div class="mobile-card-list" id="productCards"></div>
+        </div>
+      </section>
+
+      <section class="page" id="inventory">
+        <div class="headline"><div><h2>재고 관리</h2><p>입고·조정·판매차감 이력을 관리합니다.</p></div><button class="btn primary" id="adjustStockBtn">＋ 조정</button></div>
+        <div class="panel glass">
+          <div class="table-wrap"><table><thead><tr><th>일시</th><th>상품</th><th>유형</th><th>변동</th><th>변동 후</th><th>메모</th><th>관리</th></tr></thead><tbody id="stockRows"></tbody></table></div>
+          <div class="mobile-card-list" id="stockCards"></div>
+        </div>
+      </section>
+
+      <section class="page" id="sales">
+        <div class="headline"><div><h2>판매 등록</h2><p>판매 즉시 재고가 차감되고 구매자 이력이 저장됩니다.</p></div></div>
+        <div class="panel glass">
+          <form id="saleForm"><div class="form-grid">
+            <label>판매일시<input type="datetime-local" id="saleDate" required></label>
+            <label>판매장소 / 행사명<input id="salePlace" placeholder="판매장소 또는 행사명을 입력하세요"></label>
+            <label>구매자 이름<input id="buyerName" placeholder="이름"></label>
+            <label>연락처<input id="buyerPhone" placeholder="연락처를 입력하세요"></label>
+            <label class="full">주소<input id="buyerAddress" placeholder="필요한 경우 입력"></label>
+            <label>상품<select id="saleProduct" required></select></label>
+            <label>수량<input type="number" id="saleQty" min="1" value="1" required></label>
+            <label>판매 단가<input type="number" id="saleUnitPrice" min="0" value="0" required></label>
+            <label>결제방법<select id="paymentMethod"><option>현금</option><option>카드</option><option>계좌이체</option><option>무료나눔</option><option>기타</option></select></label>
+            <label>수령방식<select id="delivery"><option>현장수령</option><option>택배배송</option><option>미정</option></select></label>
+            <label>택배 발송 여부
+              <select id="shippingStatus">
+                <option value="미발송">미발송</option>
+                <option value="발송완료">발송완료</option>
+                <option value="해당없음">해당없음</option>
+              </select>
+            </label>
+            <label class="full">비고<textarea id="saleMemo"></textarea></label>
+          </div><div class="modal-actions"><button class="btn" type="reset">초기화</button><button class="btn primary" type="submit">판매 저장 · 재고 차감</button></div></form>
+        </div>
+      </section>
+
+      <section class="page" id="history">
+        <div class="headline"><div><h2>판매 내역</h2><p>누가, 어디서, 언제, 무엇을 얼마나 구매했는지 확인합니다.</p></div></div>
+        <div class="panel glass">
+          <div class="panel-head"><h3>거래 기록</h3><div class="toolbar"><input class="input" id="salesSearch" placeholder="이름 · 연락처 · 행사 · 상품"><button class="btn desktop-only" id="exportSalesCsv">CSV 내보내기</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>판매일시</th><th>행사/장소</th><th>구매자</th><th>연락처</th><th>주소</th><th>상품</th><th>수량</th><th class="money">단가</th><th class="money">금액</th><th>결제</th><th>수령방식</th><th>택배발송</th><th>관리</th></tr></thead><tbody id="salesRows"></tbody></table></div>
+          <div class="mobile-card-list" id="salesCards"></div>
+        </div>
+      </section>
+
+      <section class="page" id="customers">
+        <div class="headline"><div><h2>구매자 관리</h2><p>사람별 누적 구매 이력과 구매 금액을 확인합니다.</p></div><button class="btn" id="togglePrivacy">개인정보 전체 보기</button></div>
+        <div class="two">
+          <div class="panel glass"><div class="panel-head"><h3>구매자 목록</h3><input class="input" id="customerSearch" placeholder="이름 · 연락처 · 주소"></div><div id="customerList"></div></div>
+          <div class="panel glass"><div class="panel-head"><h3>구매자 상세</h3></div><div id="customerDetail" class="empty">구매자를 선택하세요.</div></div>
+        </div>
+      </section>
+
+      <section class="page" id="categories">
+        <div class="headline">
+          <div>
+            <h2>분류 관리</h2>
+            <p>등록한 분류만 표시되며, 언제든 수정하거나 삭제할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="two category-layout">
+          <div class="panel glass">
+            <div class="panel-head">
+              <div>
+                <h3>등록된 분류</h3>
+                <div class="small" style="margin-top:5px">예시 데이터는 표시하지 않습니다. 수정 시 연결된 상품에도 자동 반영됩니다.</div>
+              </div>
+              <span class="badge" id="categoryCount">0개</span>
+            </div>
+            <div id="categoryManagerList"></div>
+          </div>
+
+          <div class="panel glass">
+            <div class="panel-head">
+              <div>
+                <h3 id="categoryFormTitle">새 분류 추가</h3>
+                <div class="small" style="margin-top:5px">중분류와 소분류는 필요하지 않으면 비워둘 수 있습니다.</div>
+              </div>
+            </div>
+
+            <form id="categoryForm">
+              <input type="hidden" id="categoryEditIndex" value="">
+              <div class="form-grid">
+                <label>대분류
+                  <div class="category-entry-row">
+                    <input id="catMajor" required placeholder="대분류 이름">
+                    <select id="catMajorPreset" class="category-reuse-select" aria-label="기존 대분류 불러오기">
+                      <option value="">기존 대분류</option>
+                    </select>
+                  </div>
+                </label>
+                <label>중분류
+                  <div class="category-entry-row">
+                    <input id="catMid" placeholder="중분류 이름">
+                    <select id="catMidPreset" class="category-reuse-select" aria-label="기존 중분류 불러오기" disabled>
+                      <option value="">기존 중분류</option>
+                    </select>
+                  </div>
+                </label>
+                <label class="full">소분류
+                  <div class="category-entry-row">
+                    <input id="catMinor" placeholder="소분류 이름">
+                    <select id="catMinorPreset" class="category-reuse-select" aria-label="기존 소분류 불러오기" disabled>
+                      <option value="">기존 소분류</option>
+                    </select>
+                  </div>
+                </label>
+              </div>
+              <div class="modal-actions">
+                <button class="btn" type="button" id="categoryCancelEdit" style="display:none">수정 취소</button>
+                <button class="btn primary" id="categorySubmitBtn" type="submit">분류 추가</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="index">
+        <div class="headline"><div><h2>색인 / 검색</h2><p>상품, 분류, 시트, 구매자, 행사 정보를 통합 검색합니다.</p></div></div>
+        <div class="panel glass">
+          <input class="input" id="indexSearch" style="width:100%;padding:14px" placeholder="검색어를 입력하세요">
+          <div id="indexResults" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+
+      <section class="page" id="calendarPage">
+        <div class="headline">
+          <div>
+            <h2>판매 달력</h2>
+            <p>판매가 있었던 날짜를 한눈에 보고 날짜를 눌러 세부내역을 확인합니다.</p>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="calendar-toolbar">
+            <div class="calendar-title-group">
+              <button class="btn calendar-arrow" id="calendarPrevBtn" type="button" aria-label="이전 달">‹</button>
+              <h3 id="calendarTitle">판매 달력</h3>
+              <button class="btn calendar-arrow" id="calendarNextBtn" type="button" aria-label="다음 달">›</button>
+            </div>
+            <div class="toolbar calendar-selects">
+              <button class="btn" id="calendarTodayBtn" type="button">오늘</button>
+              <select class="select" id="calendarYear"></select>
+              <select class="select" id="calendarMonth">
+                <option value="0">1월</option><option value="1">2월</option><option value="2">3월</option>
+                <option value="3">4월</option><option value="4">5월</option><option value="5">6월</option>
+                <option value="6">7월</option><option value="7">8월</option><option value="8">9월</option>
+                <option value="9">10월</option><option value="10">11월</option><option value="11">12월</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="calendar-scroll">
+            <div class="calendar-weekdays">
+              <div class="sun">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="sat">토</div>
+            </div>
+            <div class="calendar-grid" id="salesCalendar"></div>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3 id="calendarDayTitle">날짜를 선택하세요</h3>
+              <div class="small" id="calendarDaySummary">판매 표시가 있는 날짜를 누르면 상세 판매내역을 볼 수 있습니다.</div>
+            </div>
+          </div>
+          <div id="calendarDaySales" class="empty">선택된 날짜가 없습니다.</div>
+        </div>
+      </section>
+
+      <section class="page" id="settings">
+        <div class="headline">
+          <div>
+            <h2>설정</h2>
+            <p>프로그램의 화면과 사용 환경을 설정합니다.</p>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>홈 화면에 앱으로 추가</h3>
+              <div class="small" style="margin-top:5px">브라우저에서 홈 화면에 추가하면 ‘청소년국’ 아이콘으로 앱처럼 실행됩니다.</div>
+            </div>
+          </div>
+          <div class="small" style="line-height:1.7">
+            <b>iPhone / iPad Safari</b><br>
+            공유 버튼 → <b>홈 화면에 추가</b><br><br>
+            <b>Android Chrome</b><br>
+            메뉴(⋮) → <b>홈 화면에 추가</b> 또는 <b>앱 설치</b>
+          </div>
+        </div>
+
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>화면 모드</h3>
+              <div class="small" style="margin-top:5px">원하는 화면 테마를 선택하세요. 선택한 설정은 자동으로 기억됩니다.</div>
+            </div>
+          </div>
+
+          <div class="appearance-grid">
+            <button class="appearance-option" id="lightThemeOption" type="button" onclick="setTheme('light')">
+              <div class="appearance-preview light-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-content"><div></div><div></div><div></div></div>
+              </div>
+              <div class="appearance-copy">
+                <div class="appearance-icon">☀</div>
+                <div><b>라이트 모드</b><div class="small">밝고 선명한 기본 화면</div></div>
+                <span class="theme-check">✓</span>
+              </div>
+            </button>
+
+            <button class="appearance-option" id="darkThemeOption" type="button" onclick="setTheme('dark')">
+              <div class="appearance-preview dark-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-content"><div></div><div></div><div></div></div>
+              </div>
+              <div class="appearance-copy">
+                <div class="appearance-icon">☾</div>
+                <div><b>다크 모드</b><div class="small">어두운 환경에서 편안한 화면</div></div>
+                <span class="theme-check">✓</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>계정</h3>
+              <div class="small" style="margin-top:5px">청소년국 중앙 데이터는 Supabase에 저장됩니다.</div>
+            </div>
+          </div>
+          <div class="cloud-profile-row" id="cloudProfileRow" style="display:none">
+            <div>
+              <b id="cloudProfileName">-</b>
+              <div class="small" id="cloudProfileRole">-</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+              <button class="btn" id="cloudEditNameBtn" type="button">실명 수정</button>
+              <button class="btn danger" id="cloudLogoutBtn" type="button">로그아웃</button>
+            </div>
+          </div>
+          <div id="accountLoginPrompt" class="cloud-status-box">
+            <div class="cloud-status-left">
+              <span class="cloud-dot"></span>
+              <div>
+                <b>로그인이 필요합니다.</b>
+                <div class="small">회원가입 후 바로 사용할 수 있습니다.</div>
+              </div>
+            </div>
+            <button class="btn primary" id="settingsLoginBtn" type="button">로그인</button>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section class="page" id="auditHistory">
+        <div class="headline">
+          <div>
+            <h2>수정 이력</h2>
+            <p>모든 로그인 사용자가 누가, 언제, 무엇을 수정했는지 확인할 수 있습니다.</p>
+          </div>
+          <button class="btn" id="auditRefreshBtn" type="button">새로고침</button>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>전체 변경 기록</h3>
+              <div class="small">최근 변경부터 최대 200건까지 표시합니다.</div>
+            </div>
+            <div class="toolbar">
+              <input class="input" id="auditSearch" placeholder="이름 · 작업 · 내용 검색">
+            </div>
+          </div>
+          <div id="auditHistoryList">
+            <div class="empty">로그인 후 수정 이력을 확인할 수 있습니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="centralAdmin">
+        <div class="headline">
+          <div>
+            <h2>중앙 관리</h2>
+            <p>사용자 권한과 전체 수정 이력을 관리합니다.</p>
+          </div>
+          <button class="btn" id="centralRefreshBtn" type="button">새로고침</button>
+        </div>
+
+        <div class="central-stats">
+          <div class="central-stat glass"><div class="small">중앙 버전</div><div class="value" id="centralVersion">-</div></div>
+          <div class="central-stat glass"><div class="small">마지막 수정자</div><div class="value" id="centralLastEditor">-</div></div>
+          <div class="central-stat glass"><div class="small">사용 중</div><div class="value" id="centralActiveCount">-</div></div>
+          <div class="central-stat glass"><div class="small">사용 중지</div><div class="value" id="centralPendingCount">-</div></div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>사용자 관리</h3>
+              <div class="small">가입한 사용자의 관리자/편집자 권한을 관리합니다.</div>
+            </div>
+          </div>
+          <div id="centralMembers"><div class="empty">불러오는 중...</div></div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-head">
+            <div>
+              <h3>수정 이력</h3>
+              <div class="small">누가, 언제, 어떤 내용을 수정했는지 최근 순서로 표시합니다.</div>
+            </div>
+          </div>
+          <div id="centralAudit"><div class="empty">불러오는 중...</div></div>
+        </div>
+      </section>
+
+      <section class="page" id="sheetPage">
+        <div class="headline"><div><h2 id="sheetTitle">사용자 시트</h2><p id="sheetDesc"></p></div></div>
+        <div class="panel glass">
+          <div class="table-wrap"><table><thead><tr><th>코드</th><th>상품명</th><th>분류</th><th class="money">원가</th><th class="money">판매가</th><th>재고</th><th>관리</th></tr></thead><tbody id="sheetRows"></tbody></table></div>
+          <div class="mobile-card-list" id="sheetCards"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<nav class="mobile-nav">
+  <button class="active" data-page="dashboard"><span>◫</span><span>홈</span></button>
+  <button data-page="products"><span>▦</span><span>상품</span></button>
+  <button data-page="sales"><span>₩</span><span>판매</span></button>
+  <button data-page="history"><span>≡</span><span>내역</span></button>
+  <button id="mobileMoreBtn" type="button"><span>☰</span><span>전체메뉴</span></button>
+</nav>
+
+<div class="mobile-menu-backdrop" id="mobileMenuBackdrop">
+  <div class="mobile-menu-sheet glass">
+    <div class="mobile-menu-head">
+      <div>
+        <div class="small">청소년국</div>
+        <h3>전체 메뉴</h3>
+      </div>
+      <button class="btn" id="mobileMenuCloseBtn" type="button">닫기</button>
+    </div>
+
+    <div class="mobile-menu-grid">
+      <button data-mobile-page="inventory"><span>↕</span><b>재고 관리</b></button>
+      <button data-mobile-page="calendarPage"><span>▣</span><b>판매 달력</b></button>
+      <button data-mobile-page="customers"><span>♙</span><b>구매자</b></button>
+      <button data-mobile-page="categories"><span>⌘</span><b>분류 관리</b></button>
+      <button data-mobile-page="index"><span>⌕</span><b>색인 / 검색</b></button>
+      <button data-mobile-page="auditHistory"><span>✎</span><b>수정 이력</b></button>
+      <button data-mobile-page="settings"><span>⚙</span><b>설정</b></button>
+      <button id="mobileCentralAdminBtn" data-mobile-page="centralAdmin" style="display:none"><span>◎</span><b>중앙 관리</b></button>
+    </div>
+
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-section-row">
+        <div class="mobile-menu-section-title">사용자 시트</div>
+        <button class="btn compact-btn" id="mobileAddSheetBtn" type="button">＋ 새 시트</button>
+      </div>
+      <div id="mobileSheetList" class="mobile-sheet-list"></div>
+    </div>
+
+    <div class="mobile-menu-section">
+      <div class="mobile-menu-section-title">데이터 관리</div>
+      <div class="mobile-data-actions">
+        <button class="btn" id="mobileExportBtn" type="button">⇩ 데이터 백업</button>
+        <button class="btn" id="mobileImportBtn" type="button">⇧ 데이터 불러오기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="productModal"><div class="modal">
+  <h3 id="productModalTitle">새 상품 등록</h3>
+  <form id="productForm"><input type="hidden" id="productId"><div class="form-grid">
+    <label>상품코드<input id="pCode" required></label>
+    <label>상품명<input id="pName" required></label>
+    <label>대분류
+      <select id="pMajor">
+        <option value="">대분류 선택</option>
+      </select>
+    </label>
+    <label>중분류
+      <select id="pMid">
+        <option value="">중분류 선택</option>
+      </select>
+    </label>
+    <label>소분류
+      <select id="pMinor">
+        <option value="">소분류 선택</option>
+      </select>
+    </label>
+    <label>원가<input id="pCost" type="number" min="0" value="0"></label>
+    <label>판매가<input id="pPrice" type="number" min="0" value="0"></label>
+    <label>현재재고<input id="pStock" type="number" value="0"></label>
+    <label>안전재고<input id="pSafety" type="number" min="0" value="5"></label>
+    <label class="full">사용자 시트<div id="productSheetInfo" class="small" style="padding:10px 2px">선택된 시트에만 저장됩니다.</div></label>
+    <label class="full">비고<textarea id="pMemo"></textarea></label>
+  </div>
+<div class="modal-actions"><button type="button" class="btn" onclick="closeProductModal()">취소</button><button class="btn primary" type="submit">저장</button></div></form>
+</div></div>
+
+<div class="modal-backdrop" id="stockModal"><div class="modal" style="width:min(540px,100%)">
+  <h3>재고 조정</h3>
+  <form id="stockForm"><div class="form-grid">
+    <label class="full">상품<select id="stockProduct"></select></label>
+    <label>유형<select id="stockType"><option>입고</option><option>재고조정</option><option>반품</option><option>폐기</option></select></label>
+    <label>변동 수량<input id="stockChange" type="number" value="1"></label>
+    <label class="full">메모<input id="stockMemo"></label>
+  </div><div class="modal-actions"><button type="button" class="btn" onclick="closeStockModal()">취소</button><button class="btn primary" type="submit">반영</button></div></form>
+</div></div>
+
+
+<div class="modal-backdrop" id="detailModal"><div class="modal" style="width:min(760px,100%)">
+  <div class="panel-head" style="margin-bottom:16px">
+    <div>
+      <div class="small" id="detailType"></div>
+      <h3 id="detailTitle" style="margin:2px 0 0"></h3>
+    </div>
+    <button class="btn" type="button" onclick="closeDetailModal()">닫기</button>
+  </div>
+  <div id="detailBody"></div>
+  <div class="modal-actions" id="detailActions"></div>
+</div></div>
+
+
+<div class="cloud-auth-backdrop" id="cloudAuthModal">
+  <div class="cloud-auth-card glass">
+    <div class="panel-head">
+      <div>
+        <div class="small">Supabase 중앙 시스템</div>
+        <h2>로그인</h2>
+      </div>
+      <button class="btn" id="cloudAuthCloseBtn" type="button">닫기</button>
+    </div>
+
+    <div class="auth-form">
+      <label>이메일<input id="cloudLoginEmail" type="email" autocomplete="email" placeholder="이메일"></label>
+      <label>비밀번호<input id="cloudLoginPassword" type="password" autocomplete="current-password" placeholder="비밀번호"></label>
+      <label class="remember-id-row">
+        <input id="rememberLoginId" type="checkbox">
+        <span>아이디 저장</span>
+      </label>
+      <button class="btn primary" id="cloudLoginBtn" type="button">로그인</button>
+      <button class="auth-link-btn" id="forgotPasswordOpenBtn" type="button">비밀번호를 잊으셨나요?</button>
+    </div>
+
+    <div class="password-reset-request" id="passwordResetRequest" style="display:none">
+      <div class="auth-divider">비밀번호 재설정</div>
+      <div class="small" style="margin-bottom:9px">
+        가입할 때 사용한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.
+      </div>
+      <div class="auth-form">
+        <label>가입 이메일
+          <input id="passwordResetEmail" type="email" autocomplete="email" placeholder="이메일">
+        </label>
+        <button class="btn primary" id="passwordResetSendBtn" type="button">재설정 메일 보내기</button>
+        <button class="btn" id="passwordResetCancelBtn" type="button">취소</button>
+      </div>
+      <div id="passwordResetMessage" class="small" style="margin-top:9px"></div>
+    </div>
+
+    <div class="auth-divider">또는</div>
+
+    <details>
+      <summary style="cursor:pointer;font-weight:800">새 계정 만들기</summary>
+      <div class="small" style="margin:8px 0">실명으로 가입하면 바로 사용할 수 있습니다.</div>
+      <div class="auth-form">
+        <label>실명<input id="cloudSignupName" placeholder="실명"></label>
+        <label>이메일<input id="cloudSignupEmail" type="email" autocomplete="email" placeholder="이메일"></label>
+        <label>비밀번호<input id="cloudSignupPassword" type="password" autocomplete="new-password" placeholder="8자 이상 권장"></label>
+        <button class="btn" id="cloudSignupBtn" type="button">회원가입</button>
+      </div>
+    </details>
+
+    <div id="cloudAuthMessage" class="small" style="margin-top:13px"></div>
+  </div>
+</div>
+
+
+<div class="cloud-auth-backdrop" id="passwordUpdateModal">
+  <div class="cloud-auth-card glass">
+    <div class="panel-head">
+      <div>
+        <div class="small">청소년국 계정</div>
+        <h2>새 비밀번호 설정</h2>
+      </div>
+    </div>
+
+    <div class="small" style="margin-bottom:14px">
+      새로 사용할 비밀번호를 입력해 주세요.
+    </div>
+
+    <div class="auth-form">
+      <label>새 비밀번호
+        <input id="newPassword" type="password" autocomplete="new-password" placeholder="새 비밀번호">
+      </label>
+      <label>새 비밀번호 확인
+        <input id="newPasswordConfirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 다시 입력">
+      </label>
+      <button class="btn primary" id="passwordUpdateBtn" type="button">비밀번호 변경</button>
+    </div>
+    <div id="passwordUpdateMessage" class="small" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="liquid_stock_db_v2";
+const WORKSPACE_SCHEMA_VERSION=3;
+let activeSheetId=null;
+const BUSINESS_PAGES=new Set(["dashboard","products","inventory","sales","history","calendarPage","auditHistory","customers","categories","index"]);
+/* =========================================================
+   GitHub Pages 배포 전 아래 2개 값만 입력하세요.
+   Secret Key / service_role 키는 절대 넣지 마세요.
+   ========================================================= */
+const SUPABASE_URL="https://adbpxqyjbqrquoqqjqst.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_x5fuOEW_J-UHLyKSPnighg_TbZdbUce";
+
+const CLOUD_SESSION_KEY="liquid_stock_supabase_session_v1";
+const REMEMBER_LOGIN_ID_KEY="youth_office_saved_login_email_v1";
+let cloudSession=null;
+let currentProfile=null;
+let cloudVersion=0;
+let cloudLastState=null;
+let cloudLastMeta=null;
+let cloudSaving=false;
+let cloudApplying=false;
+let cloudSaveTimer=null;
+let cloudPollTimer=null;
+
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const won=n=>"₩"+Number(n||0).toLocaleString("ko-KR");
+const nowLocal=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+const fmtDate=s=>s?new Date(s).toLocaleString("ko-KR"):"";
+const THEME_KEY="liquid_stock_theme";
+function updateThemeUI(){
+ const theme=document.documentElement.getAttribute("data-theme")||"light";
+ const light=$("lightThemeOption"), dark=$("darkThemeOption");
+ if(light) light.classList.toggle("selected",theme==="light");
+ if(dark) dark.classList.toggle("selected",theme==="dark");
+}
+function setTheme(theme){
+ const value=theme==="dark"?"dark":"light";
+ document.documentElement.setAttribute("data-theme",value);
+ localStorage.setItem(THEME_KEY,value);
+ updateThemeUI();
+}
+function initTheme(){
+ const saved=localStorage.getItem(THEME_KEY);
+ setTheme(saved==="dark"?"dark":"light");
+}
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+
+function seed(){return{
+ workspaceVersion:WORKSPACE_SCHEMA_VERSION,
+ auditResetAt:"",
+ products:[],
+ categories:[],
+ sheets:[],
+ sales:[],
+ stockHistory:[],
+ privacy:false
+}}
+let db=seed();
+
+/* 구버전의 기본 예시 데이터가 저장되어 있을 때만 자동 제거 */
+(function removeLegacySampleData(){
+ const sampleCodes=new Set(["ONE-POUCH","BOOK-COLOR","PEN-CLIP"]);
+ const sampleCategoryKeys=new Set([
+   "굿즈|생활|파우치",
+   "굿즈|문구|펜",
+   "도서|어린이|활동북"
+ ]);
+ const sampleSheetNames=new Set(["행사판매","청소년국 굿즈"]);
+
+ if(Array.isArray(db.products)){
+   db.products=db.products.filter(p=>!sampleCodes.has(String(p.code||"")));
+ }
+ if(Array.isArray(db.categories)){
+   db.categories=db.categories.filter(c=>!sampleCategoryKeys.has(
+     [c.major||"",c.mid||"",c.minor||""].join("|")
+   ));
+ }
+ if(Array.isArray(db.sheets)){
+   db.sheets=db.sheets.filter(s=>!sampleSheetNames.has(String(s.name||"")));
+ }
+ if(Array.isArray(db.stockHistory)){
+   db.stockHistory=db.stockHistory.filter(h=>![
+     "원프렌즈 파우치 키링","소태산 대종사 컬러링북","원프렌즈 클립펜"
+   ].includes(String(h.productName||"")));
+ }
+})();
+function persist(){
+ if(document.body.classList.contains("auth-locked"))return;
+ localStorage.setItem(KEY,JSON.stringify(db));
+}
+function save(){
+ persist();
+ renderAll();
+ if(!cloudApplying) queueCloudSave();
+}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1800)}
+
+
+
+function clearLocalBusinessCache(){
+ try{localStorage.removeItem(KEY)}catch(e){}
+ cloudApplying=true;
+ db=seed();
+ cloudApplying=false;
+}
+
+function lockApp(message="로그인 후 이용할 수 있습니다."){
+ document.body.classList.add("auth-locked");
+ clearLocalBusinessCache();
+ renderAll();
+ if($("cloudAuthMessage"))$("cloudAuthMessage").textContent=message;
+ if($("cloudAuthModal"))$("cloudAuthModal").classList.add("show");
+}
+
+function unlockApp(){
+ document.body.classList.remove("auth-locked");
+ if($("cloudAuthModal"))$("cloudAuthModal").classList.remove("show");
+}
+
+function isAppUnlocked(){
+ return !document.body.classList.contains("auth-locked");
+}
+
+
+function loadRememberedLoginId(){
+ const saved=localStorage.getItem(REMEMBER_LOGIN_ID_KEY)||"";
+ const email=$("cloudLoginEmail");
+ const check=$("rememberLoginId");
+ if(email && saved)email.value=saved;
+ if(check)check.checked=!!saved;
+}
+
+function saveRememberedLoginId(){
+ const check=$("rememberLoginId");
+ const email=$("cloudLoginEmail")?.value?.trim()||"";
+ if(check?.checked && email){
+   localStorage.setItem(REMEMBER_LOGIN_ID_KEY,email);
+ }else{
+   localStorage.removeItem(REMEMBER_LOGIN_ID_KEY);
+ }
+}
+
+function getCloudConfig(){
+ const url=String(SUPABASE_URL||"").trim().replace(/\/+$/,"");
+ const key=String(SUPABASE_PUBLISHABLE_KEY||"").trim();
+ if(!url || !key || url.includes("YOUR_SUPABASE") || key.includes("YOUR_SUPABASE")){
+   return null;
+ }
+ return {url,key};
+}
+function clearCloudSession(){
+ cloudSession=null;currentProfile=null;cloudVersion=0;cloudLastState=null;cloudLastMeta=null;
+ localStorage.removeItem(CLOUD_SESSION_KEY);
+ stopCloudPolling();
+ clearLocalBusinessCache();
+ updateCloudUI();
+ lockApp("로그인 후 이용할 수 있습니다.");
+}
+function loadCloudSession(){
+ try{
+   cloudSession=JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)||"null");
+ }catch(e){cloudSession=null}
+ return cloudSession;
+}
+function storeCloudSession(s){
+ if(!s)return clearCloudSession();
+ const expiresAt=s.expires_at||Math.floor(Date.now()/1000)+(Number(s.expires_in)||3600);
+ cloudSession={...s,expires_at:expiresAt};
+ localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify(cloudSession));
+}
+function cloudSerializableDb(){
+ return {
+   workspaceVersion:WORKSPACE_SCHEMA_VERSION,
+   auditResetAt:db.auditResetAt||"",
+   products:structuredClone(db.products||[]),
+   categories:structuredClone(db.categories||[]),
+   sheets:structuredClone(db.sheets||[]),
+   sales:structuredClone(db.sales||[]),
+   stockHistory:structuredClone(db.stockHistory||[])
+ };
+}
+function cloneData(v){return JSON.parse(JSON.stringify(v??null))}
+function remoteHasData(v){
+ if(!v)return false;
+ return ["products","categories","sheets","sales","stockHistory"].some(k=>Array.isArray(v[k])&&v[k].length>0);
+}
+function localHasData(){return remoteHasData(cloudSerializableDb())}
+function sameJson(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+
+function setCloudStatus(mode,label,detail=""){ /* 상태표시 UI 없음 */ }
+function updateCloudUI(){
+ const profileRow=$("cloudProfileRow");
+ const loginPrompt=$("accountLoginPrompt");
+
+ if(profileRow){
+   profileRow.style.display=currentProfile?"grid":"none";
+   if(currentProfile){
+     $("cloudProfileName").textContent=currentProfile.full_name||"이름 미등록";
+     $("cloudProfileRole").textContent=currentProfile.role==="admin"?"관리자":"편집자";
+   }
+ }
+ if(loginPrompt)loginPrompt.style.display=currentProfile?"none":"flex";
+
+ const admin=currentProfile?.active&&currentProfile?.role==="admin";
+ if($("centralNavBtn"))$("centralNavBtn").style.display=admin?"flex":"none";
+ if($("mobileCentralAdminBtn"))$("mobileCentralAdminBtn").style.display=admin?"flex":"none";
+}
+function showCloudAuth(message=""){
+ if(!getCloudConfig()){alert("관리자 설정이 아직 완료되지 않았습니다.");return}
+ $("cloudAuthMessage").textContent=message;
+ if($("passwordResetRequest"))$("passwordResetRequest").style.display="none";
+ loadRememberedLoginId();
+ $("cloudAuthModal").classList.add("show");
+}
+function hideCloudAuth(){
+ if(document.body.classList.contains("auth-locked"))return false;
+ if(!cloudSession?.access_token || !currentProfile?.active)return false;
+ $("cloudAuthModal").classList.remove("show");
+ return true;
+}
+
+async function rawSupabaseFetch(path,{method="GET",body=null,auth=false,headers={}}={}){
+ const cfg=getCloudConfig();
+ if(!cfg)throw new Error("Supabase 연결 정보가 없습니다.");
+ let token=null;
+ if(auth)token=await ensureAccessToken();
+ const h={"apikey":cfg.key,...headers};
+ if(body!==null)h["Content-Type"]="application/json";
+ if(token)h["Authorization"]=`Bearer ${token}`;
+ const res=await fetch(cfg.url+path,{method,headers:h,body:body===null?undefined:JSON.stringify(body)});
+ const text=await res.text();
+ let payload=null;
+ if(text){
+   try{payload=JSON.parse(text)}catch(e){payload=text}
+ }
+ if(!res.ok){
+   const msg=payload?.message||payload?.msg||payload?.error_description||payload?.error||String(payload||res.statusText);
+   const err=new Error(msg);err.status=res.status;err.payload=payload;throw err;
+ }
+ return payload;
+}
+async function ensureAccessToken(){
+ if(!cloudSession)loadCloudSession();
+ if(!cloudSession?.access_token)throw new Error("LOGIN_REQUIRED");
+ const now=Math.floor(Date.now()/1000);
+ if((cloudSession.expires_at||0)>now+60)return cloudSession.access_token;
+ if(!cloudSession.refresh_token)throw new Error("LOGIN_REQUIRED");
+ const cfg=getCloudConfig();
+ const res=await fetch(cfg.url+"/auth/v1/token?grant_type=refresh_token",{
+   method:"POST",
+   headers:{"apikey":cfg.key,"Content-Type":"application/json"},
+   body:JSON.stringify({refresh_token:cloudSession.refresh_token})
+ });
+ const data=await res.json();
+ if(!res.ok){clearCloudSession();throw new Error(data?.msg||data?.error_description||"세션 갱신 실패")}
+ storeCloudSession(data);
+ return cloudSession.access_token;
+}
+
+function appBaseUrl(){
+ return window.location.origin + window.location.pathname;
+}
+
+function showPasswordResetRequest(){
+ const loginEmail=$("cloudLoginEmail")?.value?.trim()||"";
+ if($("passwordResetEmail"))$("passwordResetEmail").value=loginEmail;
+ $("passwordResetRequest").style.display="block";
+ $("passwordResetMessage").textContent="";
+ $("passwordResetEmail").focus();
+}
+
+function hidePasswordResetRequest(){
+ $("passwordResetRequest").style.display="none";
+ $("passwordResetMessage").textContent="";
+}
+
+async function sendPasswordResetEmail(email){
+ const cfg=getCloudConfig();
+ if(!cfg)throw new Error("Supabase 연결 정보가 설정되지 않았습니다.");
+ email=String(email||"").trim();
+ if(!email)throw new Error("가입한 이메일을 입력하세요.");
+
+ const redirectTo=appBaseUrl();
+ const res=await fetch(
+   cfg.url + "/auth/v1/recover?redirect_to=" + encodeURIComponent(redirectTo),
+   {
+     method:"POST",
+     headers:{
+       "apikey":cfg.key,
+       "Content-Type":"application/json"
+     },
+     body:JSON.stringify({email})
+   }
+ );
+
+ let data=null;
+ try{data=await res.json()}catch(e){}
+ if(!res.ok){
+   throw new Error(data?.msg||data?.error_description||data?.message||"재설정 메일을 보내지 못했습니다.");
+ }
+ return true;
+}
+
+function getRecoverySessionFromUrl(){
+ const hash=window.location.hash?.replace(/^#/,"")||"";
+ if(!hash)return null;
+ const p=new URLSearchParams(hash);
+ if(p.get("type")!=="recovery")return null;
+
+ const access_token=p.get("access_token");
+ const refresh_token=p.get("refresh_token");
+ if(!access_token)return null;
+
+ return {
+   access_token,
+   refresh_token:refresh_token||"",
+   token_type:p.get("token_type")||"bearer",
+   expires_in:Number(p.get("expires_in")||3600),
+   expires_at:Number(p.get("expires_at")||0),
+   type:"recovery"
+ };
+}
+
+function openPasswordUpdateModal(){
+ $("cloudAuthModal").classList.remove("show");
+ $("passwordUpdateMessage").textContent="";
+ $("newPassword").value="";
+ $("newPasswordConfirm").value="";
+ $("passwordUpdateModal").classList.add("show");
+ setTimeout(()=>$("newPassword").focus(),50);
+}
+
+async function updatePasswordFromRecovery(newPassword){
+ const cfg=getCloudConfig();
+ if(!cfg)throw new Error("Supabase 연결 정보가 설정되지 않았습니다.");
+ const recovery=getRecoverySessionFromUrl();
+ const token=recovery?.access_token || cloudSession?.access_token;
+ if(!token)throw new Error("비밀번호 재설정 링크가 만료되었거나 올바르지 않습니다.");
+
+ const res=await fetch(cfg.url+"/auth/v1/user",{
+   method:"PUT",
+   headers:{
+     "apikey":cfg.key,
+     "Authorization":`Bearer ${token}`,
+     "Content-Type":"application/json"
+   },
+   body:JSON.stringify({password:newPassword})
+ });
+
+ let data=null;
+ try{data=await res.json()}catch(e){}
+ if(!res.ok){
+   throw new Error(data?.msg||data?.error_description||data?.message||"비밀번호를 변경하지 못했습니다.");
+ }
+
+ history.replaceState(null,"",window.location.pathname+window.location.search);
+ $("passwordUpdateModal").classList.remove("show");
+ clearCloudSession();
+ showCloudAuth("비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.");
+ return data;
+}
+
+function handlePasswordRecoveryOnLoad(){
+ const recovery=getRecoverySessionFromUrl();
+ if(!recovery)return false;
+ lockApp("비밀번호를 재설정해 주세요.");
+ storeCloudSession(recovery);
+ openPasswordUpdateModal();
+ return true;
+}
+
+async function cloudLogin(email,password){
+ const cfg=getCloudConfig();if(!cfg)throw new Error("관리자 설정이 아직 완료되지 않았습니다.");
+ const res=await fetch(cfg.url+"/auth/v1/token?grant_type=password",{
+   method:"POST",
+   headers:{"apikey":cfg.key,"Content-Type":"application/json"},
+   body:JSON.stringify({email,password})
+ });
+ const data=await res.json();
+ if(!res.ok)throw new Error(data?.msg||data?.error_description||"로그인 실패");
+ storeCloudSession(data);
+ await afterCloudLogin();
+}
+async function cloudSignup(name,email,password){
+ const cfg=getCloudConfig();if(!cfg)throw new Error("관리자 설정이 아직 완료되지 않았습니다.");
+ if(!String(name||"").trim())throw new Error("실명을 입력하세요.");
+ const res=await fetch(cfg.url+"/auth/v1/signup",{
+   method:"POST",
+   headers:{"apikey":cfg.key,"Content-Type":"application/json"},
+   body:JSON.stringify({email,password,data:{full_name:String(name).trim()}})
+ });
+ const data=await res.json();
+ if(!res.ok)throw new Error(data?.msg||data?.error_description||"회원가입 실패");
+ if(data?.access_token){
+   storeCloudSession(data);
+   await afterCloudLogin();
+   return "회원가입이 완료되었습니다. 바로 사용할 수 있습니다.";
+ }
+ return "회원가입이 완료되었습니다. 이메일 확인이 필요한 경우 메일을 확인한 뒤 로그인하세요.";
+}
+async function fetchMyProfile(){
+ if(!cloudSession?.user?.id)return null;
+ const id=encodeURIComponent(cloudSession.user.id);
+ const rows=await rawSupabaseFetch(`/rest/v1/profiles?user_id=eq.${id}&select=user_id,full_name,role,active,created_at`,{auth:true});
+ currentProfile=Array.isArray(rows)?rows[0]||null:null;
+ return currentProfile;
+}
+async function ensureRealName(){
+ await fetchMyProfile();
+ if(currentProfile?.full_name?.trim())return currentProfile;
+ const name=prompt("수정 이력에 표시할 실명을 등록해 주세요.");
+ if(!name?.trim())throw new Error("실명 등록이 필요합니다.");
+ await rawSupabaseFetch("/rest/v1/rpc/ensure_my_profile",{method:"POST",auth:true,body:{p_full_name:name.trim()}});
+ await fetchMyProfile();
+ return currentProfile;
+}
+async function updateMyRealName(){
+ if(!currentProfile)return;
+ const name=prompt("수정 이력에 표시할 실명을 입력하세요.",currentProfile.full_name||"");
+ if(!name?.trim())return;
+ await rawSupabaseFetch("/rest/v1/rpc/update_my_name",{method:"POST",auth:true,body:{p_full_name:name.trim()}});
+ await fetchMyProfile();updateCloudUI();toast("실명을 수정했습니다.");
+}
+async function cloudLogout(){
+ try{if(cloudSession)await rawSupabaseFetch("/auth/v1/logout",{method:"POST",auth:true})}catch(e){}
+ clearCloudSession();
+ toast("로그아웃했습니다.");
+}
+async function afterCloudLogin(){
+ await ensureRealName();
+ updateCloudUI();
+ hideCloudAuth();
+
+ if(!currentProfile?.active){
+   lockApp("현재 계정은 사용 중지 상태입니다.");
+   return;
+ }
+
+ await pullCloudState({initial:true});
+ unlockApp();
+ startCloudPolling();
+ loadAuditHistory();
+ if(currentProfile.role==="admin")loadCentralAdmin();
+}
+
+function describeCloudChange(prev,next){
+ prev=prev||{products:[],categories:[],sheets:[],sales:[],stockHistory:[]};
+ const byId=a=>new Map((a||[]).map(x=>[x.id,x]));
+
+ const prevSales=byId(prev.sales),nextSales=byId(next.sales);
+ const addedSale=(next.sales||[]).find(x=>!prevSales.has(x.id));
+ if(addedSale)return ["판매 등록",`${addedSale.productName||"상품"} ${addedSale.qty||0}개 · ${addedSale.buyerName||"구매자 미입력"}`];
+ const removedSale=(prev.sales||[]).find(x=>!nextSales.has(x.id));
+ if(removedSale)return ["판매 취소",`${removedSale.productName||"상품"} ${removedSale.qty||0}개 판매 취소`];
+
+ const prevProducts=byId(prev.products),nextProducts=byId(next.products);
+ const addedProduct=(next.products||[]).find(x=>!prevProducts.has(x.id));
+ if(addedProduct)return ["상품 등록",`${addedProduct.name||"상품"} 등록`];
+ const removedProduct=(prev.products||[]).find(x=>!nextProducts.has(x.id));
+ if(removedProduct)return ["상품 삭제",`${removedProduct.name||"상품"} 삭제`];
+ for(const p of (next.products||[])){
+   const old=prevProducts.get(p.id);if(!old)continue;
+   if(JSON.stringify(old)!==JSON.stringify(p)){
+     const labels=[];
+     [["name","상품명"],["major","대분류"],["mid","중분류"],["minor","소분류"],["cost","원가"],["price","판매가"],["stock","재고"],["safety","안전재고"],["memo","비고"]].forEach(([k,l])=>{
+       if(JSON.stringify(old[k])!==JSON.stringify(p[k]))labels.push(l);
+     });
+     return ["상품 수정",`${p.name||old.name||"상품"} · ${labels.slice(0,4).join(", ")||"정보"} 수정`];
+   }
+ }
+
+ const prevStock=byId(prev.stockHistory),nextStock=byId(next.stockHistory);
+ const addedStock=(next.stockHistory||[]).find(x=>!prevStock.has(x.id));
+ if(addedStock)return [`재고 ${addedStock.type||"수정"}`,`${addedStock.productName||"상품"} ${addedStock.change>0?"+":""}${addedStock.change||0}개`];
+ const removedStock=(prev.stockHistory||[]).find(x=>!nextStock.has(x.id));
+ if(removedStock)return ["재고 이력 삭제",`${removedStock.productName||"상품"} · ${removedStock.type||"재고 기록"} 삭제`];
+
+ if(JSON.stringify(prev.categories||[])!==JSON.stringify(next.categories||[]))return ["분류 수정","대/중/소분류 구성이 변경되었습니다."];
+ if(JSON.stringify(prev.sheets||[])!==JSON.stringify(next.sheets||[]))return ["시트 수정","사용자 시트 구성이 변경되었습니다."];
+ return ["데이터 수정","재고·판매 데이터가 수정되었습니다."];
+}
+function queueCloudSave(){
+ if(!isAppUnlocked()||!getCloudConfig()||!cloudSession||!currentProfile?.active||cloudApplying)return;
+ clearTimeout(cloudSaveTimer);
+ cloudSaveTimer=setTimeout(()=>pushCloudState(),350);
+}
+async function pushCloudState({manual=false,action=null,summary=null}={}){
+ if(!getCloudConfig()||!cloudSession||!currentProfile?.active)return;
+ if(cloudSaving)return;
+ const next=cloudSerializableDb();
+ if(!manual && cloudLastState && sameJson(next,cloudLastState))return;
+ cloudSaving=true;setCloudStatus("syncing","동기화 중…","중앙 서버에 변경사항을 저장하고 있습니다.");
+ try{
+   const [autoAction,autoSummary]=describeCloudChange(cloudLastState,next);
+   const rawSummary=summary||autoSummary;
+   const markedSummary=auditSheetMarker(activeSheetId)+rawSummary;
+   const version=await rawSupabaseFetch("/rest/v1/rpc/save_inventory_state",{
+     method:"POST",auth:true,
+     body:{
+       p_data:next,
+       p_expected_version:cloudVersion||null,
+       p_action:action||autoAction,
+       p_summary:markedSummary
+     }
+   });
+   cloudVersion=Number(version)||cloudVersion+1;
+   cloudLastState=cloneData(next);
+   cloudLastMeta={updated_at:new Date().toISOString(),updated_by_name:currentProfile.full_name};
+   setCloudStatus("online",`중앙 · ${currentProfile.full_name}`,`버전 ${cloudVersion} · 방금 동기화`);
+   if(currentProfile.role==="admin")loadCentralAdmin();
+ loadAuditHistory();
+ }catch(e){
+   if(String(e.message).includes("VERSION_CONFLICT")){
+     setCloudStatus("error","동기화 충돌","다른 사용자가 먼저 수정했습니다. 중앙 데이터를 다시 불러온 뒤 수정해 주세요.");
+     alert("다른 사용자가 먼저 데이터를 수정했습니다.\n\n설정 → '중앙 데이터 불러오기'를 눌러 최신 내용을 받은 뒤 다시 수정해 주세요.");
+   }else{
+     setCloudStatus("error","동기화 오류",e.message||"중앙 저장 중 오류가 발생했습니다.");
+   }
+ }finally{cloudSaving=false}
+}
+function applyRemoteState(data){
+ const privacy=db.privacy;
+ const previousSheet=activeSheetId;
+ cloudApplying=true;
+ db={...seed(),...(data||{}),privacy,workspaceVersion:WORKSPACE_SCHEMA_VERSION};
+ activeSheetId=db.sheets.some(s=>s.id===previousSheet)?previousSheet:null;
+ persist();renderAll();
+ if(!activeSheetId) showSheetHome();
+ cloudApplying=false;
+}
+async function fetchCloudStateRow(){
+ const rows=await rawSupabaseFetch("/rest/v1/inventory_state?id=eq.main&select=id,data,version,updated_at,updated_by,updated_by_name",{auth:true});
+ return Array.isArray(rows)?rows[0]||null:null;
+}
+async function pullCloudState({initial=false,force=false}={}){
+ if(!currentProfile?.active)return;
+ setCloudStatus("syncing","불러오는 중…","중앙 데이터를 확인하고 있습니다.");
+ try{
+   const row=await fetchCloudStateRow();
+   if(!row)throw new Error("중앙 데이터 행을 찾을 수 없습니다. SQL 설정을 확인하세요.");
+   const remote=row.data||{};
+   cloudVersion=Number(row.version)||1;
+   cloudLastState=cloneData(remote);
+   cloudLastMeta=row;
+
+   // v3 전환: 기존 등록값/수정이력을 비우고 시트별 완전 독립 구조로 시작
+   if(initial && Number(remote.workspaceVersion||0)<WORKSPACE_SCHEMA_VERSION){
+     cloudApplying=true;
+     db=seed();
+     db.auditResetAt=new Date(Date.now()+60000).toISOString();
+     activeSheetId=null;
+     persist();
+     renderAll();
+     cloudApplying=false;
+     await pushCloudState({manual:true,action:"시트 독립 구조 초기화",summary:"기존 등록값을 비우고 사용자 시트별 독립 관리 구조로 전환"});
+     try{
+       await rawSupabaseFetch("/rest/v1/audit_logs?id=not.is.null",{method:"DELETE",auth:true,headers:{"Prefer":"return=minimal"}});
+     }catch(e){}
+     cloudLastState=cloneData(cloudSerializableDb());
+     showSheetHome();
+     return;
+   }
+
+   if(initial && currentProfile.role==="admin" && !remoteHasData(remote) && localHasData()){
+     const upload=confirm("중앙 데이터가 비어 있습니다.\n\n현재 이 기기에 있는 데이터를 중앙 데이터로 올릴까요?\n\n[확인] 현재 데이터를 중앙에 업로드\n[취소] 중앙의 빈 데이터를 사용");
+     if(upload){
+       cloudLastState=cloneData(remote);
+       await pushCloudState({manual:true,action:"초기 데이터 업로드",summary:"기존 로컬 데이터를 중앙 데이터로 최초 반영"});
+       return;
+     }
+   }
+   applyRemoteState(remote);
+   setCloudStatus("online",`중앙 · ${currentProfile.full_name}`,`${row.updated_by_name||"사용자"} · ${row.updated_at?fmtDate(row.updated_at):"초기 데이터"} · 버전 ${cloudVersion}`);
+   toast("중앙 데이터를 불러왔습니다.");
+ }catch(e){
+   setCloudStatus("error","불러오기 오류",e.message||"중앙 데이터를 불러오지 못했습니다.");
+   if(force)alert(e.message||"중앙 데이터를 불러오지 못했습니다.");
+ }
+}
+async function checkCloudUpdates(){
+ if(!currentProfile?.active||cloudSaving||cloudSaveTimer)return;
+ try{
+   const row=await fetchCloudStateRow();
+   if(row && Number(row.version)>Number(cloudVersion)){
+     cloudVersion=Number(row.version);
+     cloudLastState=cloneData(row.data||{});
+     cloudLastMeta=row;
+     applyRemoteState(row.data||{});
+     setCloudStatus("online",`중앙 · ${currentProfile.full_name}`,`${row.updated_by_name||"다른 사용자"}님의 변경사항 반영 · ${fmtDate(row.updated_at)}`);
+     toast(`${row.updated_by_name||"다른 사용자"}님의 변경사항을 반영했습니다.`);
+     if(currentProfile.role==="admin")loadCentralAdmin();
+ loadAuditHistory();
+   }
+ }catch(e){}
+}
+function startCloudPolling(){
+ stopCloudPolling();
+ cloudPollTimer=setInterval(checkCloudUpdates,8000);
+}
+function stopCloudPolling(){if(cloudPollTimer){clearInterval(cloudPollTimer);cloudPollTimer=null}}
+
+
+let allAuditHistory=[];
+function auditSheetMarker(id){return id?`__SHEET__${id}__ `:"__GLOBAL__ "}
+function cleanAuditSummary(v){return String(v||"").replace(/^__SHEET__[^_]+__\s*/,"").replace(/^__GLOBAL__\s*/,"")}
+function auditBelongsToActiveSheet(a){return !!activeSheetId && String(a?.summary||"").startsWith(auditSheetMarker(activeSheetId))}
+function auditQueryPath(limit=200){
+ let path=`/rest/v1/audit_logs?select=id,user_id,user_name,action,summary,created_at&order=created_at.desc&limit=${limit}`;
+ if(db.auditResetAt)path+=`&created_at=gte.${encodeURIComponent(db.auditResetAt)}`;
+ return path;
+}
+
+function renderAuditHistory(){
+ const host=$("auditHistoryList"); if(!host)return;
+ const q=($("auditSearch")?.value||"").trim().toLowerCase();
+ const rows=allAuditHistory.filter(a=>auditBelongsToActiveSheet(a)).filter(a=>JSON.stringify({...a,summary:cleanAuditSummary(a.summary)}).toLowerCase().includes(q));
+
+ host.innerHTML=rows.length?rows.map(a=>`
+   <div class="audit-row">
+     <div>${fmtDate(a.created_at)}</div>
+     <div><b>${esc(a.user_name||"이름 미등록")}</b></div>
+     <div><span class="badge">${esc(a.action||"수정")}</span></div>
+     <div>${esc(cleanAuditSummary(a.summary))}</div>
+   </div>
+ `).join(""):'<div class="empty">표시할 수정 이력이 없습니다.</div>';
+}
+
+async function loadAuditHistory(){
+ if(!cloudSession){
+   if($("auditHistoryList"))$("auditHistoryList").innerHTML='<div class="empty">로그인 후 수정 이력을 확인할 수 있습니다.</div>';
+   return;
+ }
+ if(!currentProfile?.active){
+   if($("auditHistoryList"))$("auditHistoryList").innerHTML='<div class="empty">현재 계정은 사용 중지 상태입니다.</div>';
+   return;
+ }
+ try{
+   const audits=await rawSupabaseFetch(auditQueryPath(200),{auth:true});
+   allAuditHistory=Array.isArray(audits)?audits:[];
+   renderAuditHistory();
+ }catch(e){
+   if($("auditHistoryList"))$("auditHistoryList").innerHTML=`<div class="empty">${esc(e.message||"수정 이력을 불러오지 못했습니다.")}</div>`;
+ }
+}
+
+async function adminUpdateMember(userId){
+ const role=$(`memberRole_${userId}`)?.value||"editor";
+ const active=!!$(`memberActive_${userId}`)?.checked;
+ try{
+   await rawSupabaseFetch("/rest/v1/rpc/admin_update_member",{method:"POST",auth:true,body:{p_user_id:userId,p_role:role,p_active:active}});
+   toast("사용자 권한을 저장했습니다.");
+   await loadCentralAdmin();
+ }catch(e){alert(e.message||"권한 변경에 실패했습니다.")}
+}
+async function loadCentralAdmin(){
+ if(!currentProfile?.active||currentProfile.role!=="admin"){
+   if($("centralMembers"))$("centralMembers").innerHTML='<div class="empty">관리자 권한이 필요합니다.</div>';
+   return;
+ }
+ try{
+   const [members,audits,row]=await Promise.all([
+     rawSupabaseFetch("/rest/v1/profiles?select=user_id,full_name,role,active,created_at&order=created_at.asc",{auth:true}),
+     rawSupabaseFetch(auditQueryPath(100),{auth:true}),
+     fetchCloudStateRow()
+   ]);
+   const list=Array.isArray(members)?members:[];
+   const logs=Array.isArray(audits)?audits:[];
+   $("centralVersion").textContent=row?.version??"-";
+   $("centralLastEditor").textContent=row?.updated_by_name||"-";
+   $("centralActiveCount").textContent=list.filter(x=>x.active).length;
+   $("centralPendingCount").textContent=list.filter(x=>!x.active).length;
+
+   $("centralMembers").innerHTML=list.length?list.map(m=>`
+     <div class="member-row">
+       <div><b>${esc(m.full_name||"이름 미등록")}</b><div class="small">${esc(m.user_id.slice(0,8))}… · ${fmtDate(m.created_at)}</div></div>
+       <select class="select" id="memberRole_${m.user_id}">
+         <option value="editor" ${m.role==="editor"?"selected":""}>편집자</option>
+         <option value="admin" ${m.role==="admin"?"selected":""}>관리자</option>
+       </select>
+       <label style="display:flex;flex-direction:row;align-items:center;gap:6px;font-weight:700">
+         <input type="checkbox" id="memberActive_${m.user_id}" ${m.active?"checked":""}> 사용
+       </label>
+       <button class="btn ${m.active?"":"primary"}" onclick="adminUpdateMember('${m.user_id}')">저장</button>
+     </div>`).join(""):'<div class="empty">사용자가 없습니다.</div>';
+
+   $("centralAudit").innerHTML=logs.length?logs.map(a=>`
+     <div class="audit-row">
+       <div>${fmtDate(a.created_at)}</div>
+       <div><b>${esc(a.user_name||"이름 미등록")}</b></div>
+       <div><span class="badge">${esc(a.action||"수정")}</span></div>
+       <div>${esc(cleanAuditSummary(a.summary))}</div>
+     </div>`).join(""):'<div class="empty">아직 수정 이력이 없습니다.</div>';
+ }catch(e){
+   $("centralMembers").innerHTML=`<div class="empty">${esc(e.message||"불러오기 실패")}</div>`;
+ }
+}
+async function initCloud(){
+ lockApp("로그인 후 이용할 수 있습니다.");
+ updateCloudUI();
+
+ const cfg=getCloudConfig();
+ if(!cfg){
+   if($("cloudAuthMessage"))$("cloudAuthMessage").textContent="관리자 설정이 아직 완료되지 않았습니다.";
+   console.warn("Supabase URL/Publishable Key를 코드 상단에 입력하세요.");
+   return;
+ }
+
+ loadCloudSession();
+ updateCloudUI();
+
+ if(!cloudSession?.access_token){
+   showCloudAuth("로그인하거나 새 계정을 만들어 주세요.");
+   return;
+ }
+
+ try{
+   await ensureAccessToken();
+   await fetchMyProfile();
+   if(!currentProfile){await ensureRealName()}
+
+   updateCloudUI();
+
+   if(!currentProfile?.active){
+     lockApp("현재 계정은 사용 중지 상태입니다.");
+     return;
+   }
+
+   await pullCloudState({initial:true});
+   unlockApp();
+   startCloudPolling();
+   loadAuditHistory();
+   if(currentProfile.role==="admin")loadCentralAdmin();
+ }catch(e){
+   cloudSession=null;
+   currentProfile=null;
+   localStorage.removeItem(CLOUD_SESSION_KEY);
+   stopCloudPolling();
+   updateCloudUI();
+   lockApp("세션이 만료되었습니다. 다시 로그인해 주세요.");
+ }
+}
+function currentSheet(){return db.sheets.find(s=>s.id===activeSheetId)||null}
+function sheetName(){return currentSheet()?.name||""}
+function sheetProducts(){return activeSheetId?db.products.filter(x=>x.sheetId===activeSheetId):[]}
+function sheetCategories(){return activeSheetId?db.categories.filter(x=>x.sheetId===activeSheetId):[]}
+function sheetSales(){return activeSheetId?db.sales.filter(x=>x.sheetId===activeSheetId):[]}
+function sheetStockHistory(){return activeSheetId?db.stockHistory.filter(x=>x.sheetId===activeSheetId):[]}
+function requireSheet(){
+ if(activeSheetId&&currentSheet())return true;
+ toast("사용자 시트를 먼저 선택해 주세요.");
+ showSheetHome();
+ return false;
+}
+function showSheetHome(){
+ activeSheetId=null;
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ $("sheetHome")?.classList.add("active");
+ document.querySelectorAll("[data-page]").forEach(b=>b.classList.remove("active"));
+ renderSheetSelectionState();
+ document.querySelector(".content")?.scrollTo?.({top:0});
+}
+function backToSheetHome(){showSheetHome();renderAll()}
+function renderSheetSelectionState(){
+ const selected=!!currentSheet();
+ document.querySelectorAll("[data-page]").forEach(b=>{
+   if(BUSINESS_PAGES.has(b.dataset.page))b.classList.toggle("sheet-scope-hidden",!selected);
+ });
+ document.querySelectorAll("[data-mobile-page]").forEach(b=>{
+   if(BUSINESS_PAGES.has(b.dataset.mobilePage))b.classList.toggle("sheet-scope-hidden",!selected);
+ });
+ $("quickSaleBtn")?.classList.toggle("sheet-scope-hidden",!selected);
+ $("quickProductBtn")?.classList.toggle("sheet-scope-hidden",!selected);
+ $("globalSearchWrap")?.classList.toggle("sheet-scope-hidden",!selected);
+ const badge=$("activeSheetBadge");
+ if(badge){badge.classList.toggle("show",selected);$("activeSheetName").textContent=selected?sheetName():"";}
+ const mobileNav=document.querySelector(".mobile-nav");
+ mobileNav?.classList.toggle("sheet-pick-mode",!selected);
+ const moreLabel=$("mobileMoreBtn")?.querySelector("span:last-child");
+ if(moreLabel)moreLabel.textContent=selected?"전체메뉴":"사용자 시트";
+}
+function navigate(id){
+ if(document.body.classList.contains("auth-locked")){
+   showCloudAuth("로그인 후 이용할 수 있습니다.");
+   return;
+ }
+ if(BUSINESS_PAGES.has(id)&&!requireSheet())return;
+ closeMobileMenu();
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ const page=$(id);if(!page)return;page.classList.add("active");
+ document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+ const more=$("mobileMoreBtn");
+ if(more){
+   const primary=["dashboard","products","sales","history"];
+   more.classList.toggle("active",!primary.includes(id));
+ }
+ document.querySelector(".content").scrollTop=0;
+ if(id==="settings") updateThemeUI();
+ if(id==="calendarPage") renderCalendar();
+ if(id==="centralAdmin") loadCentralAdmin();
+ if(id==="auditHistory") loadAuditHistory();
+}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>navigate(b.dataset.page));
+$("activeSheetBadge").onclick=backToSheetHome;
+
+function openMobileMenu(){
+ const el=$("mobileMenuBackdrop");
+ if(!el)return;
+ renderMobileSheetList();
+ el.classList.add("show");
+}
+function closeMobileMenu(){
+ $("mobileMenuBackdrop")?.classList.remove("show");
+}
+function renderMobileSheetList(){
+ const host=$("mobileSheetList");if(!host)return;
+ host.innerHTML=db.sheets.length
+   ? db.sheets.map(s=>`<div class="mobile-sheet-row">
+       <button class="mobile-sheet-btn" type="button" onclick="closeMobileMenu();openSheet('${s.id}')">${s.id===activeSheetId?'✓ ':'▤ '}${esc(s.name)}</button>
+       <button class="mobile-sheet-delete" type="button" aria-label="${esc(s.name)} 삭제" onclick="event.stopPropagation();removeSheet('${s.id}');renderMobileSheetList()">×</button>
+     </div>`).join("")
+   : '<div class="small">등록된 사용자 시트가 없습니다.</div>';
+}
+$("mobileMoreBtn").onclick=openMobileMenu;
+$("mobileMenuCloseBtn").onclick=closeMobileMenu;
+$("mobileMenuBackdrop").onclick=e=>{if(e.target===$("mobileMenuBackdrop"))closeMobileMenu()};
+document.querySelectorAll("[data-mobile-page]").forEach(b=>b.onclick=()=>navigate(b.dataset.mobilePage));
+$("mobileExportBtn").onclick=()=>{$("exportBtn").click();closeMobileMenu()};
+$("mobileImportBtn").onclick=()=>{$("importBtn").click();closeMobileMenu()};
+$("mobileAddSheetBtn").onclick=()=>{$("addSheetBtn").click();setTimeout(renderMobileSheetList,0)};
+
+function renderAll(){
+ renderSheetSelectionState();
+ renderFilters();renderDashboard();renderProducts();renderInventory();renderSales();renderCustomers();
+ renderCategories();renderSheets();fillProductSelects();renderIndex();renderCalendar();
+ if($("productModal")?.classList.contains("show")){
+   const major=$("pMajor").value, mid=$("pMid").value, minor=$("pMinor").value;
+   syncProductCategoryDropdowns(major,mid,minor);
+ }
+}
+function margin(p){return (p.price||0)-(p.cost||0)}
+function stockBadge(p){return `<span class="badge ${p.stock<=p.safety?(p.stock===0?'bad':'warn'):'good'}">${p.stock}개</span>`}
+
+function saleDateKey(s){
+ const raw=String(s?.date||"");
+ if(/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0,10);
+ const d=new Date(raw);
+ if(Number.isNaN(d.getTime())) return "";
+ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+ return `${y}-${m}-${day}`;
+}
+function dateKeyFromParts(y,m,d){
+ return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+function saleCategoryValue(s,key){
+ if(s?.[key])return s[key];
+ const p=sheetProducts().find(x=>x.id===s?.productId);
+ return p?.[key]||"";
+}
+function saleMajorCategory(s){return saleCategoryValue(s,"major")}
+function dashboardFilteredSales(){
+ const major=$("dashboardMajorFilter")?.value||"";
+ const mid=$("dashboardMidFilter")?.value||"";
+ const minor=$("dashboardMinorFilter")?.value||"";
+ const start=$("dashboardStart")?.value||"";
+ const end=$("dashboardEnd")?.value||"";
+ return sheetSales().filter(s=>{
+   if(major && saleCategoryValue(s,"major")!==major)return false;
+   if(mid && saleCategoryValue(s,"mid")!==mid)return false;
+   if(minor && saleCategoryValue(s,"minor")!==minor)return false;
+   const key=saleDateKey(s); if(!key)return false;
+   if(start && key<start)return false;
+   if(end && key>end)return false;
+   return true;
+ });
+}
+function updateDashboardRangeLabel(){
+ const start=$("dashboardStart")?.value||"", end=$("dashboardEnd")?.value||"";
+ const text=(start||end)?`${start||"처음"} ~ ${end||"현재"}`:"기간 제한 없음";
+ if($("dashboardRangeLabel"))$("dashboardRangeLabel").textContent=text;
+}
+
+let calendarCursor=new Date();
+calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth(),1);
+let selectedCalendarDate="";
+
+function salesForDate(key){return sheetSales().filter(s=>saleDateKey(s)===key)}
+function populateCalendarYears(){
+ const el=$("calendarYear"); if(!el)return;
+ const cursorYear=calendarCursor.getFullYear();
+ const current=new Date().getFullYear();
+ const years=[...new Set([cursorYear,current,...sheetSales().map(s=>Number(saleDateKey(s).slice(0,4))).filter(Boolean)])].sort((a,b)=>b-a);
+ el.innerHTML=years.map(y=>`<option value="${y}" ${y===cursorYear?'selected':''}>${y}년</option>`).join("");
+ if($("calendarMonth"))$("calendarMonth").value=String(calendarCursor.getMonth());
+}
+function renderCalendar(){
+ const grid=$("salesCalendar"); if(!grid)return;
+ populateCalendarYears();
+ const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
+ if($("calendarTitle"))$("calendarTitle").textContent=`${y}년 ${m+1}월`;
+ const firstDay=new Date(y,m,1).getDay();
+ const lastDate=new Date(y,m+1,0).getDate();
+ const today=new Date();
+ const todayKey=dateKeyFromParts(today.getFullYear(),today.getMonth(),today.getDate());
+ let cells=[];
+ for(let i=0;i<firstDay;i++)cells.push('<div class="calendar-day empty-day"></div>');
+ for(let d=1;d<=lastDate;d++){
+   const key=dateKeyFromParts(y,m,d);
+   const daySales=salesForDate(key);
+   const total=daySales.reduce((a,s)=>a+(Number(s.qty)||0)*(Number(s.unitPrice)||0),0);
+   const products=[...new Set(daySales.map(s=>s.productName).filter(Boolean))];
+   const visible=products.slice(0,2);
+   const cls=[
+     "calendar-day",
+     daySales.length?"has-sales":"",
+     key===todayKey?"today":"",
+     key===selectedCalendarDate?"selected":""
+   ].filter(Boolean).join(" ");
+   const saleInfo=daySales.length?`
+     <div class="calendar-total">${won(total)}</div>
+     ${visible.map(n=>`<div class="calendar-product">${esc(n)}</div>`).join("")}
+     ${products.length>2?`<div class="calendar-more">+${products.length-2}개 상품 더보기</div>`:""}
+   `:"";
+   cells.push(`<button class="${cls}" type="button" ${daySales.length?`onclick="selectCalendarDate('${key}')"`:""}>
+     <div class="calendar-date-row">
+       <span class="calendar-date-number">${d}</span>
+       ${daySales.length?`<span class="calendar-sale-badge"><span class="calendar-sales-dot"></span>${daySales.length}건</span>`:""}
+     </div>
+     ${saleInfo}
+   </button>`);
+ }
+ grid.innerHTML=cells.join("");
+ if(selectedCalendarDate && selectedCalendarDate.startsWith(`${y}-${String(m+1).padStart(2,"0")}`)){
+   renderCalendarDayDetail(selectedCalendarDate);
+ }
+}
+function selectCalendarDate(key){
+ selectedCalendarDate=key;
+ renderCalendar();
+ renderCalendarDayDetail(key);
+ setTimeout(()=>$("calendarDaySales")?.scrollIntoView({behavior:"smooth",block:"nearest"}),30);
+}
+function renderCalendarDayDetail(key){
+ const arr=[...salesForDate(key)].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ const title=$("calendarDayTitle"),summary=$("calendarDaySummary"),body=$("calendarDaySales");
+ if(!title||!summary||!body)return;
+ const [y,m,d]=key.split("-");
+ title.textContent=`${Number(y)}년 ${Number(m)}월 ${Number(d)}일 판매`;
+ if(!arr.length){
+   summary.textContent="이 날짜에는 판매 기록이 없습니다.";
+   body.className="empty";body.innerHTML="판매 기록이 없습니다.";return;
+ }
+ const total=arr.reduce((a,s)=>a+(Number(s.qty)||0)*(Number(s.unitPrice)||0),0);
+ const units=arr.reduce((a,s)=>a+(Number(s.qty)||0),0);
+ const products=new Set(arr.map(s=>s.productName).filter(Boolean)).size;
+ summary.textContent=`${arr.length}건 · ${units}개 판매 · ${won(total)}`;
+ body.className="";
+ body.innerHTML=`
+   <div class="calendar-day-summary-cards">
+     <div class="calendar-mini-stat"><span class="small">판매 건수</span><b>${arr.length}건</b></div>
+     <div class="calendar-mini-stat"><span class="small">판매 수량</span><b>${units}개</b></div>
+     <div class="calendar-mini-stat"><span class="small">매출</span><b>${won(total)}</b></div>
+   </div>
+   ${arr.map(s=>`<div class="calendar-day-detail" onclick="openSaleDetail('${s.id}')">
+     <div>
+       <b>${esc(s.productName||"-")}</b>
+       <div class="small" style="margin-top:4px">${fmtDate(s.date)} · ${esc(s.buyerName||"구매자 미입력")} · ${esc(s.place||"장소 미입력")}</div>
+       <div class="small" style="margin-top:3px">${s.qty}개 · ${esc(s.payment||"-")} · 택배 ${esc(s.shippingStatus||"미발송")}</div>
+     </div>
+     <div class="calendar-detail-right">
+       <b>${won((s.qty||0)*(s.unitPrice||0))}</b>
+       <div class="small" style="margin-top:4px">상세보기 ›</div>
+     </div>
+   </div>`).join("")}`;
+}
+
+function renderDashboard(){
+ const major=$("dashboardMajorFilter")?.value||"";
+ const mid=$("dashboardMidFilter")?.value||"";
+ const minor=$("dashboardMinorFilter")?.value||"";
+ const wrap=$("dashboardDataWrap");
+ const prompt=$("dashboardChoosePrompt");
+
+ if(!activeSheetId){
+   if(wrap)wrap.style.display="none";
+   if(prompt)prompt.style.display="block";
+   return;
+ }
+
+ if(wrap)wrap.style.display="block";
+ if(prompt)prompt.style.display="none";
+ updateDashboardRangeLabel();
+
+ const categoryProducts=sheetProducts().filter(p=>
+   (!major || (p.major||"")===major) &&
+   (!mid || (p.mid||"")===mid) &&
+   (!minor || (p.minor||"")===minor)
+ );
+ const filtered=dashboardFilteredSales();
+
+ $("kpiProducts").textContent=categoryProducts.length.toLocaleString();
+ $("kpiCost").textContent=won(categoryProducts.reduce((a,p)=>a+(Number(p.cost)||0)*(Number(p.stock)||0),0));
+ $("kpiRevenue").textContent=won(filtered.reduce((a,s)=>a+(Number(s.qty)||0)*(Number(s.unitPrice)||0),0));
+ $("kpiSalesCount").textContent=filtered.length.toLocaleString();
+ $("kpiUnits").textContent=filtered.reduce((a,s)=>a+(Number(s.qty)||0),0).toLocaleString();
+
+ const buyerKeys=new Set(filtered.map(s=>(s.buyerPhone||s.buyerName||"").trim()).filter(Boolean));
+ $("kpiBuyers").textContent=buyerKeys.size.toLocaleString();
+
+ const lows=categoryProducts.filter(p=>Number(p.stock)<=Number(p.safety));
+ $("kpiLow").textContent=lows.length.toLocaleString();
+ $("lowStockList").innerHTML=lows.length
+   ? lows.slice(0,8).map(p=>`<div class="customer-card"><div><b>${esc(p.name)}</b><div class="small">${esc(p.code)}</div></div>${stockBadge(p)}</div>`).join("")
+   : `<div class="empty">선택한 분류의 재고 부족 품목이 없습니다.</div>`;
+
+ const recent=[...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);
+ $("recentSales").innerHTML=recent.length
+   ? recent.map(s=>`<div class="customer-card" onclick="openSaleDetail('${s.id}')" style="cursor:pointer">
+       <div><b>${esc(s.productName)}</b><div class="small">${fmtDate(s.date)} · ${esc(s.buyerName||"구매자 미입력")} · ${esc(s.place||"장소 미입력")}</div></div>
+       <div style="text-align:right"><b>${won((s.qty||0)*(s.unitPrice||0))}</b><div class="small">상세보기 ›</div></div>
+     </div>`).join("")
+   : `<div class="empty">선택한 조건의 판매기록이 없습니다.</div>`;
+}
+
+function productFiltered(){
+ const q=($("productSearch").value||"").toLowerCase(), cf=$("productCatFilter").value||"";
+ return sheetProducts().filter(p=>(!cf||p.major===cf)&&JSON.stringify(p).toLowerCase().includes(q));
+}
+function renderProducts(){
+ const arr=productFiltered();
+ $("productRows").innerHTML=arr.length?arr.map(p=>`<tr><td>${esc(p.code)}</td><td><b>${esc(p.name)}</b></td><td>${esc(p.major)}</td><td>${esc(p.mid)}</td><td>${esc(p.minor)}</td><td class="money">${won(p.cost)}</td><td class="money">${won(p.price)}</td><td class="money">${won(margin(p))}</td><td>${stockBadge(p)}</td><td><span class="sheet-chip">${esc(sheetName())}</span></td><td><div class="row-actions"><button class="iconbtn" onclick="editProduct('${p.id}')">수정</button><button class="iconbtn" onclick="deleteProduct('${p.id}')">삭제</button></div></td></tr>`).join(""):`<tr><td colspan="11" class="empty">상품이 없습니다.</td></tr>`;
+ $("productCards").innerHTML=arr.length?arr.map(p=>`<div class="m-card"><div class="m-row"><div><b>${esc(p.name)}</b><div class="small">${esc(p.code)}</div></div>${stockBadge(p)}</div><div class="m-meta">${esc([p.major,p.mid,p.minor].filter(Boolean).join(" > "))}<br>원가 ${won(p.cost)} · 판매가 ${won(p.price)} · 마진 ${won(margin(p))}</div><div class="m-row" style="margin-top:10px">
+  <div><span class="sheet-chip">${esc(sheetName())}</span></div>
+  <div style="display:flex;gap:6px">
+    <button class="btn" onclick="editProduct('${p.id}')">수정</button>
+    <button class="btn danger" onclick="deleteProduct('${p.id}')">삭제</button>
+  </div>
+</div></div>`).join(""):`<div class="empty">상품이 없습니다.</div>`;
+}
+$("productSearch").oninput=renderProducts;$("productCatFilter").onchange=renderProducts;
+
+function resetDashboardFilters(){
+ $("dashboardStart").value="";
+ $("dashboardEnd").value="";
+ renderDashboard();
+}
+$("dashboardMajorFilter").onchange=()=>{
+ const major=$("dashboardMajorFilter").value||"";
+ fillDashboardMidFilter(major,"");
+ fillDashboardMinorFilter(major,"","");
+ $("dashboardStart").value="";
+ $("dashboardEnd").value="";
+ renderDashboard();
+};
+$("dashboardMidFilter").onchange=()=>{
+ const major=$("dashboardMajorFilter").value||"";
+ const mid=$("dashboardMidFilter").value||"";
+ fillDashboardMinorFilter(major,mid,"");
+ renderDashboard();
+};
+$("dashboardMinorFilter").onchange=renderDashboard;
+$("dashboardStart").onchange=renderDashboard;
+$("dashboardEnd").onchange=renderDashboard;
+$("dashboardResetBtn").onclick=resetDashboardFilters;
+
+$("calendarPrevBtn").onclick=()=>{
+ calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1);
+ selectedCalendarDate="";
+ renderCalendar();
+};
+$("calendarNextBtn").onclick=()=>{
+ calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1);
+ selectedCalendarDate="";
+ renderCalendar();
+};
+$("calendarTodayBtn").onclick=()=>{
+ const n=new Date();calendarCursor=new Date(n.getFullYear(),n.getMonth(),1);
+ selectedCalendarDate=dateKeyFromParts(n.getFullYear(),n.getMonth(),n.getDate());
+ renderCalendar();renderCalendarDayDetail(selectedCalendarDate);
+};
+$("calendarYear").onchange=()=>{
+ calendarCursor=new Date(Number($("calendarYear").value),calendarCursor.getMonth(),1);
+ selectedCalendarDate="";renderCalendar();
+};
+$("calendarMonth").onchange=()=>{
+ calendarCursor=new Date(calendarCursor.getFullYear(),Number($("calendarMonth").value),1);
+ selectedCalendarDate="";renderCalendar();
+};
+
+function dashboardCategoryRecords(){
+ return [
+   ...sheetCategories().map(c=>({major:c.major||"",mid:c.mid||"",minor:c.minor||""})),
+   ...sheetProducts().map(p=>({major:p.major||"",mid:p.mid||"",minor:p.minor||""}))
+ ];
+}
+function fillDashboardMidFilter(major,selected=""){
+ const el=$("dashboardMidFilter"); if(!el)return;
+ const mids=uniqueSorted(dashboardCategoryRecords().filter(c=>c.major===major).map(c=>c.mid));
+ el.innerHTML='<option value="">전체</option>'+mids.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join("");
+ if(selected && !mids.includes(selected))selected="";
+ el.value=selected||"";
+ el.disabled=!major || mids.length===0;
+}
+function fillDashboardMinorFilter(major,mid,selected=""){
+ const el=$("dashboardMinorFilter"); if(!el)return;
+ const minors=uniqueSorted(dashboardCategoryRecords().filter(c=>c.major===major && c.mid===mid).map(c=>c.minor));
+ el.innerHTML='<option value="">전체</option>'+minors.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join("");
+ if(selected && !minors.includes(selected))selected="";
+ el.value=selected||"";
+ el.disabled=!major || !mid || minors.length===0;
+}
+function renderFilters(){
+ const majors=[...new Set([
+   ...sheetCategories().map(c=>c.major).filter(Boolean),
+   ...sheetProducts().map(p=>p.major).filter(Boolean)
+ ])].sort((a,b)=>a.localeCompare(b,"ko"));
+
+ const sel=$("productCatFilter"), old=sel?.value||"";
+ if(sel)sel.innerHTML='<option value="">모든 대분류</option>'+majors.map(x=>`<option value="${esc(x)}" ${x===old?'selected':''}>${esc(x)}</option>`).join("");
+
+ const dash=$("dashboardMajorFilter"), oldDash=dash?.value||"";
+ const oldMid=$("dashboardMidFilter")?.value||"";
+ const oldMinor=$("dashboardMinorFilter")?.value||"";
+ if(dash){
+   dash.innerHTML='<option value="">전체</option>'+majors.map(x=>`<option value="${esc(x)}" ${x===oldDash?'selected':''}>${esc(x)}</option>`).join("");
+   if(oldDash && !majors.includes(oldDash))dash.value="";
+   const selectedMajor=dash.value||"";
+   fillDashboardMidFilter(selectedMajor,oldMid);
+   fillDashboardMinorFilter(selectedMajor,$("dashboardMidFilter")?.value||"",oldMinor);
+ }
+}
+
+function uniqueSorted(arr){
+ return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"));
+}
+
+function fillMajorDropdown(selected=""){
+ const el=$("pMajor");
+ if(!el)return;
+ const majors=uniqueSorted(sheetCategories().map(c=>c.major));
+ el.innerHTML=(majors.length?'<option value="">대분류 선택</option>':'<option value="">등록된 분류가 없습니다</option>')+
+   majors.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join("");
+ if(selected && !majors.includes(selected)){
+   el.innerHTML+=`<option value="${esc(selected)}" selected>${esc(selected)}</option>`;
+ }
+}
+
+function fillMidDropdown(major,selected=""){
+ const el=$("pMid");
+ if(!el)return;
+ const mids=uniqueSorted(
+   sheetCategories()
+     .filter(c=>(c.major||"")===major)
+     .map(c=>c.mid)
+ );
+ el.innerHTML='<option value="">중분류 선택</option>'+
+   mids.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join("");
+ if(selected && !mids.includes(selected)){
+   el.innerHTML+=`<option value="${esc(selected)}" selected>${esc(selected)}</option>`;
+ }
+ el.disabled=!major || mids.length===0;
+}
+
+function fillMinorDropdown(major,mid,selected=""){
+ const el=$("pMinor");
+ if(!el)return;
+ const minors=uniqueSorted(
+   sheetCategories()
+     .filter(c=>(c.major||"")===major && (c.mid||"")===mid)
+     .map(c=>c.minor)
+ );
+ el.innerHTML='<option value="">소분류 선택</option>'+
+   minors.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join("");
+ if(selected && !minors.includes(selected)){
+   el.innerHTML+=`<option value="${esc(selected)}" selected>${esc(selected)}</option>`;
+ }
+ el.disabled=!major || !mid || minors.length===0;
+}
+
+function syncProductCategoryDropdowns(major="",mid="",minor=""){
+ fillMajorDropdown(major);
+ fillMidDropdown(major,mid);
+ fillMinorDropdown(major,mid,minor);
+}
+
+$("pMajor").onchange=e=>{
+ const major=e.target.value;
+ fillMidDropdown(major,"");
+ fillMinorDropdown(major,"","");
+};
+
+$("pMid").onchange=e=>{
+ fillMinorDropdown($("pMajor").value,e.target.value,"");
+};
+
+
+function openProductModal(p=null){
+ $("productModal").classList.add("show");$("productModalTitle").textContent=p?"상품 수정":"새 상품 등록";
+ const vals={productId:p?.id||"",pCode:p?.code||"",pName:p?.name||"",pCost:p?.cost??0,pPrice:p?.price??0,pStock:p?.stock??0,pSafety:p?.safety??5,pMemo:p?.memo||""};
+ Object.entries(vals).forEach(([k,v])=>$(k).value=v);
+ syncProductCategoryDropdowns(p?.major||"",p?.mid||"",p?.minor||"");
+ if($("productSheetInfo"))$("productSheetInfo").innerHTML=`<span class="sheet-chip">${esc(sheetName())}</span> 이 시트에만 저장됩니다.`;
+}
+function closeProductModal(){$("productModal").classList.remove("show")}
+$("productForm").onsubmit=e=>{
+ e.preventDefault(); const id=$("productId").value;
+ if(!requireSheet())return;
+ const obj={id:id||uid(),sheetId:activeSheetId,code:$("pCode").value.trim(),name:$("pName").value.trim(),major:$("pMajor").value.trim(),mid:$("pMid").value.trim(),minor:$("pMinor").value.trim(),cost:+$("pCost").value||0,price:+$("pPrice").value||0,stock:+$("pStock").value||0,safety:+$("pSafety").value||0,memo:$("pMemo").value.trim()};
+ if(id){const i=db.products.findIndex(x=>x.id===id),old=db.products[i];if(old.stock!==obj.stock)db.stockHistory.unshift({id:uid(),sheetId:activeSheetId,date:new Date().toISOString(),productId:id,productName:obj.name,type:"재고조정",change:obj.stock-old.stock,after:obj.stock,memo:"상품 수정에서 재고 변경"});db.products[i]=obj}
+ else{db.products.push(obj);db.stockHistory.unshift({id:uid(),sheetId:activeSheetId,date:new Date().toISOString(),productId:obj.id,productName:obj.name,type:"초기재고",change:obj.stock,after:obj.stock,memo:"상품 등록"})}
+ ensureCategoryExists(obj.major,obj.mid,obj.minor);
+ closeProductModal();save();toast("상품이 저장되었습니다.")
+}
+function editProduct(id){openProductModal(sheetProducts().find(p=>p.id===id))}
+function deleteProduct(id){
+ const p=sheetProducts().find(x=>x.id===id); if(!p)return;
+ const relatedSales=sheetSales().filter(s=>s.productId===id).length;
+ let msg=`"${p.name}" 상품을 삭제할까요?`;
+ if(relatedSales>0){
+   msg+=`\n\n이 상품의 판매기록이 ${relatedSales}건 있습니다.\n상품만 삭제되며 기존 판매내역은 그대로 유지됩니다.`;
+ }else{
+   msg+=`\n\n삭제한 상품은 상품 목록과 재고 목록에서 사라집니다.`;
+ }
+ if(!confirm(msg))return;
+ db.products=db.products.filter(x=>x.id!==id);
+ save();
+ toast("상품을 삭제했습니다.");
+}
+$("quickProductBtn").onclick=()=>{if(requireSheet())openProductModal()};
+
+function fillProductSelects(){
+ ["saleProduct","stockProduct"].forEach(id=>{const el=$(id),v=el.value;el.innerHTML='<option value="">상품 선택</option>'+sheetProducts().map(p=>`<option value="${p.id}" ${p.id===v?'selected':''}>${esc(p.name)} (재고 ${p.stock})</option>`).join("")})
+}
+$("saleProduct").onchange=e=>{const p=sheetProducts().find(x=>x.id===e.target.value);if(p)$("saleUnitPrice").value=p.price}
+$("delivery").onchange=e=>{
+ if(e.target.value==="현장수령") $("shippingStatus").value="해당없음";
+ else if(e.target.value==="택배배송" && $("shippingStatus").value==="해당없음") $("shippingStatus").value="미발송";
+}
+$("saleForm").onsubmit=e=>{
+ e.preventDefault();if(!requireSheet())return;const p=sheetProducts().find(x=>x.id===$("saleProduct").value),qty=+$("saleQty").value||0;if(!p)return;
+ if(qty>p.stock&&!confirm(`현재 재고는 ${p.stock}개입니다. 마이너스 재고로 등록할까요?`))return;
+ const s={id:uid(),sheetId:activeSheetId,date:$("saleDate").value||nowLocal(),place:$("salePlace").value.trim(),buyerName:$("buyerName").value.trim(),buyerPhone:$("buyerPhone").value.trim(),buyerAddress:$("buyerAddress").value.trim(),productId:p.id,productName:p.name,major:p.major||"",mid:p.mid||"",minor:p.minor||"",qty,unitPrice:+$("saleUnitPrice").value||0,payment:$("paymentMethod").value,delivery:$("delivery").value,shippingStatus:$("shippingStatus").value,memo:$("saleMemo").value.trim()};
+ db.sales.unshift(s);p.stock-=qty;db.stockHistory.unshift({id:uid(),sheetId:activeSheetId,date:new Date(s.date).toISOString(),productId:p.id,productName:p.name,type:"판매",change:-qty,after:p.stock,memo:`${s.place||"판매"} · ${s.buyerName||"구매자 미입력"}`});
+ save();e.target.reset();$("saleDate").value=nowLocal();toast("판매가 저장되고 재고가 차감되었습니다.");navigate("history")
+}
+$("quickSaleBtn").onclick=()=>{navigate("sales");$("saleDate").value=nowLocal()}
+
+function maskPhone(v){
+ if(db.privacy)return v||"-";
+ if(!v)return "-";
+ const s=String(v);
+ const digits=s.replace(/\D/g,"");
+ if(digits.length>=7){
+   const tail=digits.slice(-4);
+   const head=s.slice(0,Math.min(3,s.length));
+   return head+"-****-"+tail;
+ }
+ return s.length>4?s.slice(0,2)+"***"+s.slice(-2):"****";
+}
+function maskAddr(v){if(db.privacy)return v||"-";if(!v)return "-";return v.slice(0,Math.min(6,v.length))+" ***"}
+
+function salesFiltered(){const q=($("salesSearch").value||"").toLowerCase();return sheetSales().filter(s=>JSON.stringify(s).toLowerCase().includes(q))}
+function renderSales(){
+ const arr=salesFiltered();
+ $("salesRows").innerHTML=arr.length?arr.map(s=>`<tr><td>${fmtDate(s.date)}</td><td>${esc(s.place)}</td><td><b>${esc(s.buyerName||"-")}</b></td><td>${esc(maskPhone(s.buyerPhone))}</td><td>${esc(maskAddr(s.buyerAddress))}</td><td>${esc(s.productName)}</td><td>${s.qty}</td><td class="money">${won(s.unitPrice)}</td><td class="money"><b>${won(s.qty*s.unitPrice)}</b></td><td>${esc(s.payment)}</td><td>${esc(s.delivery)}</td><td><span class="badge ${((s.shippingStatus||'미발송')==='발송완료')?'good':((s.shippingStatus||'미발송')==='미발송'?'warn':'')}">${esc(s.shippingStatus||'미발송')}</span></td><td><button class="iconbtn" onclick="toggleShipping('${s.id}')">${(s.shippingStatus||'미발송')==='발송완료'?'미발송으로':'발송완료'}</button> <button class="iconbtn" onclick="cancelSale('${s.id}')">판매취소</button></td></tr>`).join(""):`<tr><td colspan="13" class="empty">판매 기록이 없습니다.</td></tr>`;
+ $("salesCards").innerHTML=arr.length?arr.map(s=>`<div class="m-card"><div class="m-row"><div><b>${esc(s.productName)}</b><div class="small">${fmtDate(s.date)}</div></div><b>${won(s.qty*s.unitPrice)}</b></div><div class="m-meta">${esc(s.buyerName||"-")} · ${esc(maskPhone(s.buyerPhone))}<br>${esc(s.place||"-")} · ${s.qty}개 · ${esc(s.payment)} · ${esc(s.delivery)}<br>택배발송: <b>${esc(s.shippingStatus||"미발송")}</b></div><div style="margin-top:10px;text-align:right"><button class="btn" onclick="toggleShipping('${s.id}')">${(s.shippingStatus||'미발송')==='발송완료'?'미발송으로':'발송완료'}</button> <button class="btn danger" onclick="cancelSale('${s.id}')">판매취소</button></div></div>`).join(""):`<div class="empty">판매 기록이 없습니다.</div>`;
+}
+$("salesSearch").oninput=renderSales;
+function cancelSale(id){
+ const s=sheetSales().find(x=>x.id===id);if(!s||!confirm("이 판매를 취소하고 재고를 복구할까요?"))return;
+ const p=sheetProducts().find(x=>x.id===s.productId);if(p){p.stock+=s.qty;db.stockHistory.unshift({id:uid(),sheetId:activeSheetId,date:new Date().toISOString(),productId:p.id,productName:p.name,type:"판매취소",change:s.qty,after:p.stock,memo:s.place||"판매취소"})}
+ db.sales=db.sales.filter(x=>x.id!==id);save();toast("판매가 취소되고 재고가 복구되었습니다.")
+}
+function toggleShipping(id){
+ const s=sheetSales().find(x=>x.id===id); if(!s)return;
+ s.shippingStatus=(s.shippingStatus||"미발송")==="발송완료"?"미발송":"발송완료";
+ save(); toast(`택배 발송 상태를 ${s.shippingStatus}(으)로 변경했습니다.`);
+}
+
+function renderInventory(){
+ const arr=sheetStockHistory();
+ $("stockRows").innerHTML=arr.length?arr.map(h=>`<tr><td>${fmtDate(h.date)}</td><td><b>${esc(h.productName)}</b></td><td>${esc(h.type)}</td><td>${h.change>0?'+':''}${h.change}</td><td>${h.after}</td><td>${esc(h.memo||"")}</td><td><button class="iconbtn" onclick="deleteStockHistory('${h.id}')">삭제</button></td></tr>`).join(""):`<tr><td colspan="7" class="empty">재고 기록이 없습니다.</td></tr>`;
+ $("stockCards").innerHTML=arr.length?arr.map(h=>`<div class="m-card"><div class="m-row"><b>${esc(h.productName)}</b><span class="badge">${h.change>0?'+':''}${h.change}</span></div><div class="m-meta">${fmtDate(h.date)} · ${esc(h.type)}<br>변동 후 ${h.after}개 · ${esc(h.memo||"")}</div><div style="margin-top:10px;text-align:right"><button class="btn danger" onclick="deleteStockHistory('${h.id}')">기록 삭제</button></div></div>`).join(""):`<div class="empty">재고 기록이 없습니다.</div>`;
+}
+function deleteStockHistory(id){
+ const h=sheetStockHistory().find(x=>x.id===id); if(!h)return;
+ const label=[h.productName,h.type].filter(Boolean).join(" · ");
+ const ok=confirm(`"${label}" 재고 기록을 삭제할까요?\n\n이 기록만 삭제되며 현재 상품의 재고 수량은 변경되지 않습니다.`);
+ if(!ok)return;
+ db.stockHistory=db.stockHistory.filter(x=>x.id!==id);
+ save();
+ toast("재고 기록을 삭제했습니다.");
+}
+function openStockModal(){if(!requireSheet())return;$("stockModal").classList.add("show")}function closeStockModal(){$("stockModal").classList.remove("show")}
+$("adjustStockBtn").onclick=openStockModal;
+$("stockForm").onsubmit=e=>{
+ e.preventDefault();if(!requireSheet())return;const p=sheetProducts().find(x=>x.id===$("stockProduct").value);if(!p)return;let c=+$("stockChange").value||0;if($("stockType").value==="폐기"&&c>0)c=-c;p.stock+=c;
+ db.stockHistory.unshift({id:uid(),sheetId:activeSheetId,date:new Date().toISOString(),productId:p.id,productName:p.name,type:$("stockType").value,change:c,after:p.stock,memo:$("stockMemo").value.trim()});closeStockModal();save();toast("재고가 반영되었습니다.")
+}
+
+function groupCustomers(){
+ const map={};sheetSales().forEach(s=>{const key=(s.buyerPhone||s.buyerName||"미입력").trim()||"미입력";if(!map[key])map[key]={key,name:s.buyerName||"이름 미입력",phone:s.buyerPhone||"",address:s.buyerAddress||"",sales:[],total:0};map[key].sales.push(s);map[key].total+=s.qty*s.unitPrice;if(s.buyerAddress)map[key].address=s.buyerAddress});return Object.values(map).sort((a,b)=>b.total-a.total)
+}
+function renderCustomers(){
+ const q=($("customerSearch").value||"").toLowerCase(),arr=groupCustomers().filter(c=>JSON.stringify(c).toLowerCase().includes(q));
+ $("customerList").innerHTML=arr.length?arr.map(c=>`<div class="customer-card" onclick="showCustomer('${encodeURIComponent(c.key)}')" style="cursor:pointer"><div><b>${esc(c.name)}</b><div class="small">${esc(maskPhone(c.phone))} · ${esc(maskAddr(c.address))}</div></div><div style="text-align:right"><b>${won(c.total)}</b><div class="small">${c.sales.length}건</div></div></div>`).join(""):`<div class="empty">구매자가 없습니다.</div>`;
+}
+$("customerSearch").oninput=renderCustomers;
+function showCustomer(k){
+ const key=decodeURIComponent(k),c=groupCustomers().find(x=>x.key===key);if(!c)return;
+ $("customerDetail").innerHTML=`<h3 style="margin:0 0 6px">${esc(c.name)}</h3><div class="small">연락처 ${esc(maskPhone(c.phone))}</div><div class="small">주소 ${esc(maskAddr(c.address))}</div><div class="hr"></div><b>누적 구매 ${won(c.total)}</b><div class="hr"></div>${c.sales.map(s=>`<div class="customer-card"><div><b>${esc(s.productName)}</b><div class="small">${fmtDate(s.date)} · ${esc(s.place||"-")}</div></div><div>${s.qty}개 · ${won(s.qty*s.unitPrice)}</div></div>`).join("")}`;
+}
+$("togglePrivacy").onclick=()=>{db.privacy=!db.privacy;$("togglePrivacy").textContent=db.privacy?"개인정보 가리기":"개인정보 전체 보기";save()}
+
+function categoryKey(c){
+ return [c.major||"",c.mid||"",c.minor||""].join("|");
+}
+function ensureCategoryExists(major,mid,minor){
+ major=(major||"").trim(); mid=(mid||"").trim(); minor=(minor||"").trim();
+ if(!major)return;
+ const key=[major,mid,minor].join("|");
+ if(!sheetCategories().some(c=>categoryKey(c)===key)){
+   db.categories.push({id:uid(),sheetId:activeSheetId,major,mid,minor});
+ }
+}
+function categoryProductCount(c){
+ return sheetProducts().filter(p=>
+   (p.major||"")===(c.major||"") &&
+   (p.mid||"")===(c.mid||"") &&
+   (p.minor||"")===(c.minor||"")
+ ).length;
+}
+function refreshCategoryPresetDropdowns(){
+ const majorInput=$("catMajor"), midInput=$("catMid"), minorInput=$("catMinor");
+ const majorSel=$("catMajorPreset"), midSel=$("catMidPreset"), minorSel=$("catMinorPreset");
+ if(!majorInput||!midInput||!minorInput||!majorSel||!midSel||!minorSel)return;
+
+ const major=(majorInput.value||"").trim();
+ const mid=(midInput.value||"").trim();
+ const minor=(minorInput.value||"").trim();
+ const majors=uniqueSorted(sheetCategories().map(c=>c.major));
+ majorSel.innerHTML='<option value="">기존 대분류</option>'+majors.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+ majorSel.value=majors.includes(major)?major:"";
+
+ const mids=uniqueSorted(sheetCategories().filter(c=>(c.major||"")===major).map(c=>c.mid));
+ midSel.innerHTML='<option value="">기존 중분류</option>'+mids.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+ midSel.value=mids.includes(mid)?mid:"";
+ midSel.disabled=!major || mids.length===0;
+
+ const minors=uniqueSorted(sheetCategories().filter(c=>(c.major||"")===major && (c.mid||"")===mid).map(c=>c.minor));
+ minorSel.innerHTML='<option value="">기존 소분류</option>'+minors.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+ minorSel.value=minors.includes(minor)?minor:"";
+ minorSel.disabled=!major || !mid || minors.length===0;
+}
+
+function renderCategories(){
+ const list=$("categoryManagerList");
+ const count=$("categoryCount");
+ if(!list)return;
+ const cats=sheetCategories();
+ if(count) count.textContent=`${cats.length}개`;
+ refreshCategoryPresetDropdowns();
+
+ if(!cats.length){
+   list.innerHTML=`<div class="category-empty">
+     <b>아직 등록된 분류가 없습니다.</b>
+     <div class="small" style="margin-top:7px">오른쪽에서 새 분류를 추가해 주세요.</div>
+   </div>`;
+   return;
+ }
+ const grouped={};
+ cats.forEach(c=>{
+   const major=(c.major||"미분류").trim()||"미분류";
+   if(!grouped[major]) grouped[major]=[];
+   grouped[major].push(c);
+ });
+ list.innerHTML=Object.entries(grouped).map(([major,items])=>`
+   <div class="category-manager-group">
+     <div class="category-major-title"><span>${esc(major)}</span><span class="small">${items.length}개</span></div>
+     ${items.map(c=>{
+       const parts=[c.major,c.mid,c.minor].filter(Boolean);
+       const used=categoryProductCount(c);
+       return `<div class="category-item"><div><div class="category-path">${parts.map((p,i)=>`${i?'<span class="sep">›</span>':''}${esc(p)}`).join("")}</div><div class="category-meta">연결된 상품 ${used}개</div></div><div class="category-actions"><button class="btn" type="button" onclick="editCategory('${c.id}')">수정</button><button class="btn danger" type="button" onclick="deleteCategory('${c.id}')">삭제</button></div></div>`;
+     }).join("")}
+   </div>`).join("");
+}
+function resetCategoryForm(){
+ $("categoryEditIndex").value="";
+ $("catMajor").value="";
+ $("catMid").value="";
+ $("catMinor").value="";
+ $("categoryFormTitle").textContent="새 분류 추가";
+ $("categorySubmitBtn").textContent="분류 추가";
+ $("categoryCancelEdit").style.display="none";
+ refreshCategoryPresetDropdowns();
+}
+function editCategory(id){
+ const c=sheetCategories().find(x=>x.id===id); if(!c)return;
+ $("categoryEditIndex").value=id;
+ $("catMajor").value=c.major||"";$("catMid").value=c.mid||"";$("catMinor").value=c.minor||"";
+ $("categoryFormTitle").textContent="분류 수정";$("categorySubmitBtn").textContent="수정 저장";$("categoryCancelEdit").style.display="";
+ refreshCategoryPresetDropdowns();$("catMajor").focus();
+}
+function deleteCategory(id){
+ const c=sheetCategories().find(x=>x.id===id); if(!c)return;
+ const used=categoryProductCount(c);const path=[c.major,c.mid,c.minor].filter(Boolean).join(" > ");
+ let message=`"${path}" 분류를 삭제할까요?`;
+ if(used>0)message+=`\n\n이 분류를 사용하는 상품이 ${used}개 있습니다.\n삭제하면 해당 상품의 분류 정보도 비워집니다.`;
+ if(!confirm(message))return;
+ if(used>0)sheetProducts().forEach(p=>{if((p.major||"")===(c.major||"")&&(p.mid||"")===(c.mid||"")&&(p.minor||"")===(c.minor||"")){p.major="";p.mid="";p.minor="";}});
+ db.categories=db.categories.filter(x=>x.id!==id);resetCategoryForm();save();toast("분류를 삭제했습니다.");
+}
+$("catMajorPreset").onchange=e=>{
+ if(!e.target.value)return;
+ $("catMajor").value=e.target.value;
+ $("catMid").value="";
+ $("catMinor").value="";
+ refreshCategoryPresetDropdowns();
+};
+$("catMidPreset").onchange=e=>{
+ if(!e.target.value)return;
+ $("catMid").value=e.target.value;
+ $("catMinor").value="";
+ refreshCategoryPresetDropdowns();
+};
+$("catMinorPreset").onchange=e=>{
+ if(!e.target.value)return;
+ $("catMinor").value=e.target.value;
+ refreshCategoryPresetDropdowns();
+};
+$("catMajor").oninput=refreshCategoryPresetDropdowns;
+$("catMid").oninput=refreshCategoryPresetDropdowns;
+$("catMinor").oninput=refreshCategoryPresetDropdowns;
+$("categoryCancelEdit").onclick=resetCategoryForm;
+$("categoryForm").onsubmit=e=>{
+ e.preventDefault();if(!requireSheet())return;
+ const major=$("catMajor").value.trim(),mid=$("catMid").value.trim(),minor=$("catMinor").value.trim();if(!major)return;
+ const editId=$("categoryEditIndex").value||"";
+ const duplicate=sheetCategories().some(c=>c.id!==editId&&(c.major||"")===major&&(c.mid||"")===mid&&(c.minor||"")===minor);
+ if(duplicate){toast("같은 분류가 이미 있습니다.");return;}
+ if(editId){
+   const c=db.categories.find(x=>x.id===editId&&x.sheetId===activeSheetId);if(!c)return;const old={...c};
+   c.major=major;c.mid=mid;c.minor=minor;
+   sheetProducts().forEach(p=>{if((p.major||"")===(old.major||"")&&(p.mid||"")===(old.mid||"")&&(p.minor||"")===(old.minor||"")){p.major=major;p.mid=mid;p.minor=minor;}});
+   resetCategoryForm();save();toast("분류를 수정했습니다.");
+ }else{
+   db.categories.push({id:uid(),sheetId:activeSheetId,major,mid,minor});resetCategoryForm();save();toast("분류를 추가했습니다.");
+ }
+}
+
+
+function renderSheets(){
+ renderMobileSheetList();
+ const sidebar=$("sheetList");
+ if(sidebar)sidebar.innerHTML=db.sheets.length?db.sheets.map(s=>`<button class="sheet-btn ${s.id===activeSheetId?'active-sheet':''}" onclick="openSheet('${s.id}')"><span>▤ ${esc(s.name)}</span><span onclick="event.stopPropagation();removeSheet('${s.id}')">×</span></button>`).join(""):'<div class="small" style="padding:8px">등록된 시트가 없습니다.</div>';
+ const home=$("sheetHomeList");
+ if(home)home.innerHTML=(db.sheets.length?db.sheets.map(s=>`<button class="sheet-home-card" type="button" onclick="openSheet('${s.id}')"><b>▤ ${esc(s.name)}</b><span class="small">이 사업의 재고·판매 데이터를 열기</span></button>`).join(""):'<div class="category-empty"><b>아직 사용자 시트가 없습니다.</b><div class="small" style="margin-top:6px">새 시트를 만들어 사업별 재고관리를 시작하세요.</div></div>')+`<button class="sheet-home-card sheet-home-add" type="button" onclick="document.getElementById('addSheetBtn').click()">＋ 새 시트 추가</button>`;
+}
+$("addSheetBtn").onclick=()=>{
+ const name=prompt("새 시트 이름을 입력하세요.");if(!name?.trim())return;const n=name.trim();
+ if(db.sheets.some(s=>s.name===n)){toast("같은 이름의 시트가 있습니다.");return;}
+ db.sheets.push({id:uid(),name:n});save();showSheetHome();toast("시트가 추가되었습니다. 사용할 시트를 선택해 주세요.");
+}
+function removeSheet(id){
+ const s=db.sheets.find(x=>x.id===id);if(!s)return;
+ const pc=db.products.filter(x=>x.sheetId===id).length,sc=db.sales.filter(x=>x.sheetId===id).length;
+ if(!confirm(`"${s.name}" 시트를 삭제할까요?\n\n이 시트의 상품 ${pc}개, 판매 ${sc}건, 분류·재고 기록도 함께 삭제됩니다.\n다른 시트의 데이터에는 영향을 주지 않습니다.`))return;
+ db.products=db.products.filter(x=>x.sheetId!==id);db.categories=db.categories.filter(x=>x.sheetId!==id);db.sales=db.sales.filter(x=>x.sheetId!==id);db.stockHistory=db.stockHistory.filter(x=>x.sheetId!==id);db.sheets=db.sheets.filter(x=>x.id!==id);
+ if(activeSheetId===id)activeSheetId=null;save();showSheetHome();toast("시트와 해당 시트의 데이터만 삭제했습니다.");
+}
+function openSheet(id){
+ const s=db.sheets.find(x=>x.id===id);if(!s)return;
+ activeSheetId=id;
+ $("dashboardMajorFilter").value="";fillDashboardMidFilter("","");fillDashboardMinorFilter("","","");
+ $("dashboardStart").value="";$("dashboardEnd").value="";
+ selectedCalendarDate="";renderAll();navigate("dashboard");toast(`"${s.name}" 시트를 열었습니다.`);
+}
+
+
+function renderIndex(q){
+ if(!activeSheetId){if($("indexResults"))$("indexResults").innerHTML="";return;}
+ q=(q??$("indexSearch").value??"").trim().toLowerCase();if(!q){$("indexResults").innerHTML="";return;}
+ const ps=sheetProducts().filter(p=>JSON.stringify(p).toLowerCase().includes(q)),ss=sheetSales().filter(s=>JSON.stringify(s).toLowerCase().includes(q));
+ $("indexResults").innerHTML=`<div class="small">현재 시트 · 상품 ${ps.length}건 · 판매 ${ss.length}건</div><div class="hr"></div>`+
+ ps.map(p=>`<div class="customer-card" onclick="openProductDetail('${p.id}')" style="cursor:pointer"><div><b>상품 · ${esc(p.name)}</b><div class="small">${esc(p.code)} · ${esc([p.major,p.mid,p.minor].filter(Boolean).join(" > "))}</div></div><div style="display:flex;align-items:center;gap:8px">${stockBadge(p)}<span class="small">상세보기 ›</span></div></div>`).join("")+
+ ss.slice(0,30).map(s=>`<div class="customer-card" onclick="openSaleDetail('${s.id}')" style="cursor:pointer"><div><b>판매 · ${esc(s.productName)}</b><div class="small">${esc(s.buyerName||"-")} · ${fmtDate(s.date)} · ${esc(s.place||"-")}</div></div><div style="text-align:right"><b>${won(s.qty*s.unitPrice)}</b><div class="small">상세보기 ›</div></div></div>`).join("");
+ if(!ps.length&&!ss.length)$("indexResults").innerHTML='<div class="empty">현재 시트에서 검색 결과가 없습니다.</div>';
+}
+
+
+function openDetailModal(type,title,body,actions=""){
+ $("detailType").textContent=type||"";
+ $("detailTitle").textContent=title||"";
+ $("detailBody").innerHTML=body||"";
+ $("detailActions").innerHTML=actions||"";
+ $("detailModal").classList.add("show");
+}
+function closeDetailModal(){$("detailModal").classList.remove("show")}
+
+function detailRow(label,value){
+ return `<div class="customer-card" style="grid-template-columns:140px 1fr;align-items:start">
+   <div class="small" style="font-weight:800">${esc(label)}</div>
+   <div style="white-space:normal;word-break:break-word">${value}</div>
+ </div>`;
+}
+
+function openProductDetail(id){
+ const p=sheetProducts().find(x=>x.id===id); if(!p)return;
+ const cats=[p.major,p.mid,p.minor].filter(Boolean).join(" > ")||"-";
+ const sheetText=`<span class="sheet-chip">${esc(sheetName())}</span>`;
+ const marginValue=margin(p), marginRate=p.price?Math.round((marginValue/p.price)*1000)/10:0;
+ const body=[
+   detailRow("상품코드",esc(p.code||"-")),
+   detailRow("분류",esc(cats)),
+   detailRow("원가",`<b>${won(p.cost)}</b>`),
+   detailRow("판매가",`<b>${won(p.price)}</b>`),
+   detailRow("마진",`${won(marginValue)} <span class="small">(${marginRate}%)</span>`),
+   detailRow("현재 재고",`${stockBadge(p)}`),
+   detailRow("안전재고",`${Number(p.safety||0).toLocaleString()}개`),
+   detailRow("연결 시트",sheetText),
+   detailRow("비고",esc(p.memo||"-"))
+ ].join("");
+ const actions=`<button class="btn" onclick="closeDetailModal()">닫기</button>
+                <button class="btn danger" onclick="closeDetailModal();deleteProduct('${p.id}')">상품 삭제</button>
+                <button class="btn primary" onclick="closeDetailModal();editProduct('${p.id}')">상품 수정</button>`;
+ openDetailModal("상품 상세",p.name,body,actions);
+}
+
+function openSaleDetail(id){
+ const s=sheetSales().find(x=>x.id===id); if(!s)return;
+ const body=[
+   detailRow("판매일시",esc(fmtDate(s.date))),
+   detailRow("판매장소 / 행사명",esc(s.place||"-")),
+   detailRow("구매자 이름",esc(s.buyerName||"-")),
+   detailRow("연락처",esc(s.buyerPhone||"-")),
+   detailRow("주소",esc(s.buyerAddress||"-")),
+   detailRow("상품",esc(s.productName||"-")),
+   detailRow("수량",`${Number(s.qty||0).toLocaleString()}개`),
+   detailRow("판매 단가",`<b>${won(s.unitPrice)}</b>`),
+   detailRow("결제 금액",`<b>${won((s.qty||0)*(s.unitPrice||0))}</b>`),
+   detailRow("결제방법",esc(s.payment||"-")),
+   detailRow("수령방식",esc(s.delivery||"-")),
+   detailRow("택배 발송",`<span class="badge ${((s.shippingStatus||"미발송")==="발송완료")?"good":((s.shippingStatus||"미발송")==="미발송"?"warn":"")}">${esc(s.shippingStatus||"미발송")}</span>`),
+   detailRow("비고",esc(s.memo||"-"))
+ ].join("");
+ const actions=`<button class="btn" onclick="closeDetailModal()">닫기</button>
+                <button class="btn" onclick="toggleShipping('${s.id}');openSaleDetail('${s.id}')">${(s.shippingStatus||"미발송")==="발송완료"?"미발송으로 변경":"발송완료 처리"}</button>`;
+ openDetailModal("판매 상세",s.productName||"판매 내역",body,actions);
+}
+
+$("indexSearch").oninput=e=>renderIndex(e.target.value);
+$("globalSearch").onkeydown=e=>{if(e.key==="Enter"&&requireSheet()){navigate("index");$("indexSearch").value=e.target.value;renderIndex(e.target.value)}}
+
+function csvDownload(){
+ const rows=[["판매일시","장소/행사","구매자","연락처","주소","상품","수량","단가","금액","결제","수령방식","택배발송상태"]];
+ sheetSales().forEach(s=>rows.push([fmtDate(s.date),s.place,s.buyerName,s.buyerPhone,s.buyerAddress,s.productName,s.qty,s.unitPrice,s.qty*s.unitPrice,s.payment,s.delivery,s.shippingStatus||"미발송"]));
+ const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`${sheetName()||"sales"}-sales.csv`;a.click();
+}
+$("exportSalesCsv").onclick=csvDownload;
+$("exportBtn").onclick=()=>{
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:"application/json"}));a.download="liquid-stock-backup.json";a.click()
+}
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{
+ const data=JSON.parse(await f.text());
+ if(Number(data?.workspaceVersion||0)<WORKSPACE_SCHEMA_VERSION)throw new Error("OLD_BACKUP");
+ db={...seed(),...data,workspaceVersion:WORKSPACE_SCHEMA_VERSION};activeSheetId=null;save();showSheetHome();toast("백업 데이터를 불러왔습니다. 사용할 시트를 선택해 주세요.");
+ }catch(err){alert(err?.message==="OLD_BACKUP"?"이전 구조의 백업 파일은 시트 데이터가 분리되어 있지 않아 불러올 수 없습니다.":"올바른 JSON 백업 파일이 아닙니다.")}}
+
+$("productModal").onclick=e=>{if(e.target===$("productModal"))closeProductModal()}
+$("stockModal").onclick=e=>{if(e.target===$("stockModal"))closeStockModal()}
+$("detailModal").onclick=e=>{if(e.target===$("detailModal"))closeDetailModal()}
+$("saleDate").value=nowLocal();
+$("cloudAuthCloseBtn").onclick=()=>{
+ if(document.body.classList.contains("auth-locked"))return;
+ hideCloudAuth();
+};
+$("forgotPasswordOpenBtn").onclick=showPasswordResetRequest;
+$("passwordResetCancelBtn").onclick=hidePasswordResetRequest;
+$("passwordResetSendBtn").onclick=async()=>{
+ const btn=$("passwordResetSendBtn");
+ btn.disabled=true;
+ $("passwordResetMessage").textContent="재설정 메일을 보내는 중...";
+ try{
+   await sendPasswordResetEmail($("passwordResetEmail").value);
+   $("passwordResetMessage").textContent="입력한 이메일로 비밀번호 재설정 링크를 보냈습니다. 메일함을 확인해 주세요.";
+ }catch(e){
+   $("passwordResetMessage").textContent=e.message||"재설정 메일을 보내지 못했습니다.";
+ }finally{
+   btn.disabled=false;
+ }
+};
+$("passwordUpdateBtn").onclick=async()=>{
+ const p1=$("newPassword").value;
+ const p2=$("newPasswordConfirm").value;
+ if(!p1 || p1.length<6){
+   $("passwordUpdateMessage").textContent="새 비밀번호를 6자 이상 입력해 주세요.";
+   return;
+ }
+ if(p1!==p2){
+   $("passwordUpdateMessage").textContent="새 비밀번호가 서로 일치하지 않습니다.";
+   return;
+ }
+ const btn=$("passwordUpdateBtn");
+ btn.disabled=true;
+ $("passwordUpdateMessage").textContent="비밀번호를 변경하는 중...";
+ try{
+   await updatePasswordFromRecovery(p1);
+   toast("비밀번호를 변경했습니다.");
+ }catch(e){
+   $("passwordUpdateMessage").textContent=e.message||"비밀번호를 변경하지 못했습니다.";
+ }finally{
+   btn.disabled=false;
+ }
+};
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape" && document.body.classList.contains("auth-locked")){
+   e.preventDefault();
+   e.stopPropagation();
+ }
+});
+$("cloudAuthModal").onclick=e=>{
+ if(e.target!==$("cloudAuthModal"))return;
+ if(document.body.classList.contains("auth-locked"))return;
+ hideCloudAuth();
+};
+$("cloudLoginBtn").onclick=async()=>{
+ const btn=$("cloudLoginBtn");btn.disabled=true;$("cloudAuthMessage").textContent="로그인 중...";
+ try{
+   saveRememberedLoginId();
+   await cloudLogin($("cloudLoginEmail").value.trim(),$("cloudLoginPassword").value);
+   $("cloudAuthMessage").textContent="";
+   toast("로그인했습니다.");
+ }catch(e){$("cloudAuthMessage").textContent=e.message||"로그인 실패"}
+ finally{btn.disabled=false}
+};
+
+function submitLoginOnEnter(e){
+ if(e.key!=="Enter")return;
+ e.preventDefault();
+ const btn=$("cloudLoginBtn");
+ if(btn && !btn.disabled) btn.click();
+}
+$("cloudLoginEmail").addEventListener("keydown",submitLoginOnEnter);
+$("cloudLoginPassword").addEventListener("keydown",submitLoginOnEnter);
+
+$("cloudSignupBtn").onclick=async()=>{
+ const btn=$("cloudSignupBtn");btn.disabled=true;$("cloudAuthMessage").textContent="회원가입 중...";
+ try{
+   const msg=await cloudSignup($("cloudSignupName").value.trim(),$("cloudSignupEmail").value.trim(),$("cloudSignupPassword").value);
+   $("cloudAuthMessage").textContent=msg;
+   toast("회원가입을 처리했습니다.");
+ }catch(e){$("cloudAuthMessage").textContent=e.message||"가입 실패"}
+ finally{btn.disabled=false}
+};
+$("cloudLogoutBtn").onclick=cloudLogout;
+$("cloudEditNameBtn").onclick=()=>updateMyRealName().catch(e=>alert(e.message));
+$("settingsLoginBtn").onclick=showCloudAuth;
+$("centralRefreshBtn").onclick=loadCentralAdmin;
+$("auditRefreshBtn").onclick=loadAuditHistory;
+$("auditSearch").oninput=renderAuditHistory;
+
+
+initTheme();
+renderAll();
+showSheetHome();
+updateThemeUI();
+loadRememberedLoginId();
+if(!handlePasswordRecoveryOnLoad()){
+  initCloud();
+}
+</script>
+</body>
+</html>
