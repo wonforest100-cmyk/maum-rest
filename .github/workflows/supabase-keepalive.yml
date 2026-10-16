@@ -1,27 +1,44 @@
-# 저장 위치: GitHub 저장소의 .github/workflows/supabase-keepalive.yml
-# 3일마다 Supabase에 요청을 보내 7일 휴면을 미리 막습니다.
-name: Supabase Keepalive
+name: Supabase 휴면 방지
 
 on:
   schedule:
-    - cron: "0 0 */3 * *"   # 3일마다 (한국시간 오전 9시)
-  workflow_dispatch:          # Actions 탭에서 수동 실행도 가능
+    - cron: '7 0 */2 * *'   # 2일마다 한국 시간 09:07
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   ping:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Ping Supabase database
+      - name: Supabase 접속
         env:
-          SUPABASE_URL: https://adbpxqyjbqrquoqqjqst.supabase.co
-          SUPABASE_KEY: sb_publishable_x5fuOEW_J-UHLyKSPnighg_TbZdbUce
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" \
-            "$SUPABASE_URL/rest/v1/inventory_state?select=id&limit=1" \
-            -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY")
-          echo "HTTP $code"
-          if [ "$code" -ge 500 ] || [ "$code" = "000" ]; then
-            echo "::error::Supabase가 응답하지 않습니다. 휴면 상태인지 대시보드에서 확인하세요."
-            exit 1
-          fi
+          AUTH=()
+          case "$SUPABASE_KEY" in eyJ*) AUTH=(-H "Authorization: Bearer $SUPABASE_KEY");; esac
+          for i in 1 2 3 4 5; do
+            code=$(curl -sS -o resp.txt -w "%{http_code}" -X POST "${SUPABASE_URL%/}/rest/v1/rpc/keepalive" \
+              -H "apikey: $SUPABASE_KEY" "${AUTH[@]}" -H "Content-Type: application/json" -d '{}' || echo 000)
+            echo "시도 $i: HTTP $code $(cat resp.txt 2>/dev/null)"
+            [ "$code" = "200" ] && exit 0
+            sleep 60
+          done
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: 저장소 활동 기록 (매달 1일 → 60일 정지 방지)
+        run: |
+          day=$(TZ=Asia/Seoul date +%d)
+          if [ "$day" != "01" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then exit 0; fi
+          mkdir -p keepalive
+          TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S KST' > keepalive/last-ping.txt
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add keepalive/last-ping.txt
+          git commit -m "keepalive: $(cat keepalive/last-ping.txt)" || exit 0
+          git push
